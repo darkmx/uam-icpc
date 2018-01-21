@@ -5,13 +5,13 @@
 #include <vector>
 
 template<typename T>
-inline T producto_cruz(const std::pair<T, T>& a, const std::pair<T, T>& b, const std::pair<T, T>& c)
+T producto_cruz(const std::pair<T, T>& a, const std::pair<T, T>& b, const std::pair<T, T>& c)
 {
    return (b.first - a.first) * (c.second - a.second) - (b.second - a.second) * (c.first - a.first);
 }
 
 template<typename RI1, typename RI2>
-inline RI2 cerco_parcial(RI1 ai, RI1 af, RI2 bi)
+RI2 cerco_parcial(RI1 ai, RI1 af, RI2 bi)
 {
    auto bw = bi;
    for (; ai != af; *bw++ = *ai++) {
@@ -23,14 +23,15 @@ inline RI2 cerco_parcial(RI1 ai, RI1 af, RI2 bi)
    return bw;
 }
 
-template<typename RI, typename OI>
-inline OI cerco_convexo(RI ai, RI af, OI wi)
+template<typename RI>
+auto cerco_convexo(RI ai, RI af)
 {
-   std::vector<typename std::iterator_traits<RI>::value_type> temp(af - ai);
-   wi = std::copy(temp.begin( ), cerco_parcial(ai, af, temp.begin( )) - 1, wi);
-   wi = std::copy(temp.begin( ), cerco_parcial(std::make_reverse_iterator(af), std::make_reverse_iterator(ai), temp.begin( )) - 1, wi);
+   std::vector<typename std::iterator_traits<RI>::value_type> res(af - ai);
+   auto iter1 = cerco_parcial(ai, af, res.begin( )) - 1;
+   auto iter2 = cerco_parcial(std::make_reverse_iterator(af), std::make_reverse_iterator(ai), iter1) - 1;
+   res.resize(iter2 - res.begin( ));
 
-   return wi;
+   return res;
 }
 
 int main( )
@@ -44,8 +45,7 @@ int main( )
    }
 
    std::sort(v.begin( ), v.end( ));
-   std::vector<std::pair<double, double>> cerco;
-   cerco_convexo(v.begin( ), v.end( ), std::back_inserter(cerco));
+   std::vector<std::pair<double, double>> cerco = cerco_convexo(v.begin( ), v.end( ));
 
    for (auto p : cerco) {
       std::cout << p.first << " " << p.second << "\n";

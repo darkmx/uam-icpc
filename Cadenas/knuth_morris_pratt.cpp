@@ -6,7 +6,6 @@
 std::vector<std::size_t> preprocesa(const std::string& p)
 {
    std::vector<std::size_t> b = { std::size_t(-1) };
-
    for (std::size_t i = 0, j = -1; i < p.size( ); ++i) {
       while (j != -1 && p[j] != p[i]) {
          j = b[j];

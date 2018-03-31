@@ -24,12 +24,12 @@ public:
 
    void push_back(T v) {
       for (int p = 0;; ++p, pisos.resize(std::max(p + 1, int(pisos.size( ))))) {
-         pisos[p].emplace_back( );
+         pisos[p].push_back(std::move(v));
          if (pisos[p].size( ) % 2 == 1) {
             break;
          }
+         v = funcion(*(pisos[p].end( ) - 2), *(pisos[p].end( ) - 1));
       }
-      update(std::move(v), pisos[0].size( ) - 1);
    }
 
    T query(int ini, int fin, const T& v) const {
@@ -40,13 +40,13 @@ private:
    T query(int ini, int fin, const T& v, int p) const {
       if (ini == fin) {
          return v;
-      }
-
-      int grupo = 1 << p, xi = ini / grupo + bool(ini % grupo), xf = fin / grupo;
-      if (xi < xf && xf <= pisos[p].size( )) {
-         return funcion(std::accumulate(pisos[p].begin( ) + xi, pisos[p].begin( ) + xf, v, funcion), funcion(query(ini, xi * grupo, v, p - 1), query(xf * grupo, fin, v, p - 1)));
       } else {
-         return query(ini, fin, v, p - 1);
+         int grupo = 1 << p, xi = ini / grupo + bool(ini % grupo), xf = fin / grupo;
+         if (xi < xf && xf <= pisos[p].size( )) {
+            return funcion(std::accumulate(pisos[p].begin( ) + xi, pisos[p].begin( ) + xf, v, funcion), funcion(query(ini, xi * grupo, v, p - 1), query(xf * grupo, fin, v, p - 1)));
+         } else {
+            return query(ini, fin, v, p - 1);
+         }
       }
    }
 

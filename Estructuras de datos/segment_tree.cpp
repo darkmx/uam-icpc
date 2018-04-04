@@ -71,7 +71,7 @@ segment_tree<T, F> make_segment_tree(F f, T neutro) {
 }
 
 int main( ) {
-   auto s = make_segment_tree<int>(std::max<int>, INT_MIN);
+   auto s = make_segment_tree(std::max<int>, INT_MIN);
    for (int i = 0; i < 50; ++i) {
       s.push_back(i);
    }

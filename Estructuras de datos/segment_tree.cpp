@@ -1,4 +1,6 @@
-#include <climits>
+#include <algorithm>
+#include <functional>
+#include <iostream>
 #include <numeric>
 #include <vector>
 
@@ -46,6 +48,12 @@ public:
       return query(ini, fin, pisos.size( ) - 1);
    }
 
+   std::vector<const T*> visit(int ini, int fin) const {
+      std::vector<const T*> res;
+      visit(ini, fin, pisos.size( ) - 1, res);
+      return res;
+   }
+
 private:
    T query(int ini, int fin, int p) const {
       if (ini == fin) {
@@ -56,6 +64,23 @@ private:
             return funcion(std::accumulate(pisos[p].begin( ) + xi, pisos[p].begin( ) + xf, neutro, funcion), funcion(query(ini, xi * grupo, p - 1), query(xf * grupo, fin, p - 1)));
          } else {
             return query(ini, fin, p - 1);
+         }
+      }
+   }
+
+   void visit(int ini, int fin, int p, std::vector<const T*>& v) const {
+      if (ini == fin) {
+         return;
+      } else {
+         int grupo = 1 << p, xi = ini / grupo + bool(ini % grupo), xf = fin / grupo;
+         if (xi < xf && xf <= pisos[p].size( )) {
+            std::for_each(pisos[p].begin( ) + xi, pisos[p].begin( ) + xf, [&](const T& actual) {
+               v.push_back(&actual);
+            });
+            visit(ini, xi * grupo, p - 1, v);
+            visit(xf * grupo, fin, p - 1, v);
+         } else {
+            visit(ini, fin, p - 1, v);
          }
       }
    }
@@ -71,8 +96,13 @@ segment_tree<T, F> make_segment_tree(F f, T neutro) {
 }
 
 int main( ) {
-   auto s = make_segment_tree(std::max<int>, INT_MIN);
+   auto s = make_segment_tree(std::plus<int>( ), 0);
    for (int i = 0; i < 50; ++i) {
       s.push_back(i);
+   }
+
+   std::cout << s.query(5, 10) << "\n";
+   for (auto p : s.visit(5, 10)) {
+      std::cout << *p << " ";
    }
 }

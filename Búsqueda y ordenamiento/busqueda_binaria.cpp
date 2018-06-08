@@ -3,8 +3,7 @@
 #include <vector>
 
 template<typename T, typename F>
-T busqueda_binaria(T ini, T fin, F pred)
-{
+T busqueda_binaria(T ini, T fin, F pred) {
    auto res = fin;
    while (ini != fin) {
       auto mitad = ini + (fin - ini) / 2;
@@ -19,8 +18,7 @@ T busqueda_binaria(T ini, T fin, F pred)
 }
 
 template<typename T, typename F>
-T salto_exponencial(T ini, T fin, F pred)
-{
+T salto_exponencial(T ini, T fin, F pred) {
    auto probar = ini;
    while (probar != fin && !pred(probar)) {
       probar += std::min(fin - probar, probar - ini + 1);
@@ -29,8 +27,7 @@ T salto_exponencial(T ini, T fin, F pred)
    return (probar == fin ? fin : busqueda_binaria(probar - (probar - ini) / 2, probar, pred));
 }
 
-int main( )
-{
+int main( ) {
    busqueda_binaria: {
       std::vector<int> v = { 0, 2, 4, 6, 8 };
       std::cout << *busqueda_binaria(v.begin( ), v.end( ), [](auto iter) {

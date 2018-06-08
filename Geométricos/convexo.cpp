@@ -23,7 +23,7 @@ RI2 cerco_parcial(RI1 ai, RI1 af, RI2 bi) {
 
 template<typename RI>
 auto cerco_convexo(RI ai, RI af) {
-   std::vector<typename std::iterator_traits<RI>::value_type> res(af - ai);
+   std::vector<typename std::iterator_traits<RI>::value_type> res(af - ai + 2);
    auto iter1 = cerco_parcial(ai, af, res.begin( )) - 1;
    auto iter2 = cerco_parcial(std::make_reverse_iterator(af), std::make_reverse_iterator(ai), iter1) - 1;
    res.resize(iter2 - res.begin( ));
@@ -40,8 +40,7 @@ auto area_convexo(RI ai, RI af) {
    return res / 2;
 }
 
-int main( )
-{
+int main( ) {
    int n;
    std::cin >> n;
 

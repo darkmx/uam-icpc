@@ -8,18 +8,18 @@
 
 template<typename RI>
 std::vector<int> ranking(RI si, RI sf) {
-   std::vector<int> res(si, sf), trabajo(sf - si);
-   std::iota(trabajo.begin( ), trabajo.end( ), 0);
-   for (int t = 1; t <= sf - si; t *= 2) {
-      auto pred = [&, res](int x1, int x2) {
-         return std::make_pair(res[x1], (x1 + t < sf - si ? res[x1 + t] : -1)) < std::make_pair(res[x2], (x2 + t < sf - si ? res[x2 + t] : -1));
+   std::vector<int> rank(si, sf), indices(sf - si);
+   std::iota(indices.begin( ), indices.end( ), 0);
+   for (int t = 1; t <= sf - si; t *= 2) {      // importante que se haga para sf - si == 1 pues se debe normalizar el rank inicial
+      auto pred = [&, rank](int x1, int x2) {
+         return std::make_pair(rank[x1], (x1 + t < sf - si ? rank[x1 + t] : -1)) < std::make_pair(rank[x2], (x2 + t < sf - si ? rank[x2 + t] : -1));
       };
-      std::sort(trabajo.begin( ), trabajo.end( ), std::cref(pred));
-      for (int i = 0, r = 0; i < trabajo.size( ); r += (i + 1 != trabajo.size( ) && pred(trabajo[i], trabajo[i + 1])), ++i) {
-         res[trabajo[i]] = r;
+      std::sort(indices.begin( ), indices.end( ), std::cref(pred));
+      for (int i = 0, r = 0; i < indices.size( ); r += (i + 1 != indices.size( ) && pred(indices[i], indices[i + 1])), ++i) {
+         rank[indices[i]] = r;
       }
    }
-   return res;
+   return rank;
 }
 
 template<typename RI>

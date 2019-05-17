@@ -7,6 +7,10 @@
 template<typename T, typename F>
 class segment_tree {
 public:
+   segment_tree( )
+   : segment_tree(F( ), T{ }) {
+   }
+
    segment_tree(F f, T n)
    : pisos(1), funcion(f), neutro(std::move(n)) {
    }

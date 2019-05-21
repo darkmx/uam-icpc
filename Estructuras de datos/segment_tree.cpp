@@ -7,12 +7,8 @@
 template<typename T, typename F>
 class segment_tree {
 public:
-   segment_tree( )
-   : segment_tree(F( ), T{ }) {
-   }
-
-   segment_tree(F f, T n)
-   : pisos(1), funcion(f), neutro(std::move(n)) {
+   segment_tree(T n = { }, F f = { })
+   : pisos(1), neutro(std::move(n)), funcion(std::move(f)) {
    }
 
    int size( ) const {
@@ -94,13 +90,8 @@ private:
    T neutro;
 };
 
-template<typename T, typename F>
-segment_tree<T, F> make_segment_tree(F f, T neutro) {
-   return segment_tree<T, F>(f, std::move(neutro));
-}
-
 int main( ) {
-   auto s = make_segment_tree(std::plus<int>( ), 0);
+   segment_tree<int, std::plus<int>> s;
    for (int i = 0; i < 50; ++i) {
       s.push_back(i);
    }

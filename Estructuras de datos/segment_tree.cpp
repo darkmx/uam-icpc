@@ -1,93 +1,80 @@
-#include <algorithm>
 #include <functional>
 #include <iostream>
 #include <numeric>
+#include <utility>
 #include <vector>
 
-template<typename T, typename F>
+template<typename T, typename F = const T&(*)(const T&, const T&)>
 class segment_tree {
 public:
    segment_tree(T n = { }, F f = { })
-   : pisos(1), neutro(std::move(n)), funcion(std::move(f)) {
+   : pisos_(1), neutro_(std::move(n)), funcion_(std::move(f)) {
    }
 
    int size( ) const {
-      return pisos[0].size( );
-   }
-
-   void update(T v, int i) {
-      for (int p = 0;; ++p, i /= 2) {
-         pisos[p][i] = std::move(v);
-         if (i + (i % 2 == 0) == pisos[p].size( )) {
-            break;
-         }
-         v = funcion(pisos[p][i - i % 2], pisos[p][i - i % 2 + 1]);
-      }
+      return pisos_[0].size( );
    }
 
    void push_back(T v) {
-      for (int p = 0;; ++p, pisos.resize(std::max(p + 1, int(pisos.size( ))))) {
-         pisos[p].push_back(std::move(v));
-         if (pisos[p].size( ) % 2 == 1) {
+      for (int p = 0;; ++p, pisos_.resize(std::max(p + 1, int(pisos_.size( ))))) {
+         pisos_[p].push_back(std::move(v));
+         if (pisos_[p].size( ) % 2 == 1) {
             break;
          }
-         v = funcion(*(pisos[p].end( ) - 2), *(pisos[p].end( ) - 1));
+         v = funcion_(*(pisos_[p].end( ) - 2), *(pisos_[p].end( ) - 1));
       }
    }
 
    void pop_back( ) {
-      for (int p = 0; p < pisos.size( ); ++p) {
-         pisos[p].pop_back( );
-         if (pisos[p].size( ) % 2 == 0) {
+      for (int p = 0; p < pisos_.size( ); ++p) {
+         pisos_[p].pop_back( );
+         if (pisos_[p].size( ) % 2 == 0) {
             break;
          }
       }
    }
 
-   T query(int ini, int fin) const {
-      return query(ini, fin, pisos.size( ) - 1);
+   void update(T v, int i) {
+      for (int p = 0;; ++p, i /= 2) {
+         pisos_[p][i] = std::move(v);
+         if (i + (i % 2 == 0) == pisos_[p].size( )) {
+            break;
+         }
+         v = funcion(pisos_[p][i - i % 2], pisos_[p][i - i % 2 + 1]);
+      }
    }
 
-   std::vector<const T*> visit(int ini, int fin) const {
-      std::vector<const T*> res;
-      visit(ini, fin, pisos.size( ) - 1, res);
+   T query(int ini, int fin) const {
+      T res = neutro_;
+      visit_(ini, fin, pisos_.size( ) - 1, [&](const T* ini, const T* fin) {
+         res = funcion_(res, std::accumulate(ini, fin, neutro_, funcion_));
+      });
       return res;
    }
 
+   template<typename V>
+   void visit(int ini, int fin, V&& v) const {
+      visit_(ini, fin, pisos_.size( ) - 1, v);
+   }
+
 private:
-   T query(int ini, int fin, int p) const {
-      if (ini == fin) {
-         return neutro;
-      } else {
+   template<typename V>
+   void visit_(int ini, int fin, int p, V&& v) const {
+      if (ini != fin) {
          int grupo = 1 << p, xi = ini / grupo + bool(ini % grupo), xf = fin / grupo;
-         if (xi < xf && xf <= pisos[p].size( )) {
-            return funcion(std::accumulate(pisos[p].begin( ) + xi, pisos[p].begin( ) + xf, neutro, funcion), funcion(query(ini, xi * grupo, p - 1), query(xf * grupo, fin, p - 1)));
+         if (xi < xf && xf <= pisos_[p].size( )) {
+            v(pisos_[p].data( ) + xi, pisos_[p].data( ) + xf);
+            visit_(ini, xi * grupo, p - 1, v);
+            visit_(xf * grupo, fin, p - 1, v);
          } else {
-            return query(ini, fin, p - 1);
+            visit_(ini, fin, p - 1, v);
          }
       }
    }
 
-   void visit(int ini, int fin, int p, std::vector<const T*>& v) const {
-      if (ini == fin) {
-         return;
-      } else {
-         int grupo = 1 << p, xi = ini / grupo + bool(ini % grupo), xf = fin / grupo;
-         if (xi < xf && xf <= pisos[p].size( )) {
-            std::for_each(pisos[p].begin( ) + xi, pisos[p].begin( ) + xf, [&](const T& actual) {
-               v.push_back(&actual);
-            });
-            visit(ini, xi * grupo, p - 1, v);
-            visit(xf * grupo, fin, p - 1, v);
-         } else {
-            visit(ini, fin, p - 1, v);
-         }
-      }
-   }
-
-   std::vector<std::vector<T>> pisos;
-   F funcion;
-   T neutro;
+   std::vector<std::vector<T>> pisos_;
+   F funcion_;
+   T neutro_;
 };
 
 int main( ) {
@@ -95,9 +82,13 @@ int main( ) {
    for (int i = 0; i < 50; ++i) {
       s.push_back(i);
    }
-
    std::cout << s.query(5, 10) << "\n";
-   for (auto p : s.visit(5, 10)) {
-      std::cout << *p << " ";
+
+   std::vector<int> v;
+   s.visit(5, 10, [&](const int* ini, const int* fin) {
+      std::copy(ini, fin, std::back_inserter(v));
+   });
+   for (auto p : v) {
+      std::cout << p << " ";
    }
 }

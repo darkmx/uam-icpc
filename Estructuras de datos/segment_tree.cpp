@@ -40,7 +40,7 @@ public:
          if (i + (i % 2 == 0) == pisos_[p].size( )) {
             break;
          }
-         v = funcion(pisos_[p][i - i % 2], pisos_[p][i - i % 2 + 1]);
+         v = funcion_(pisos_[p][i - i % 2], pisos_[p][i - i % 2 + 1]);
       }
    }
 

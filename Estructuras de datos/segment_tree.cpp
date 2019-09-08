@@ -77,6 +77,11 @@ private:
    T neutro_;
 };
 
+template<typename T, typename F>
+segment_tree<T, F> make_segment_tree(T neutro, F f) {
+   return segment_tree<T, F>(std::move(neutro), std::move(f));
+}
+
 int main( ) {
    segment_tree<int, std::plus<int>> s;
    for (int i = 0; i < 50; ++i) {

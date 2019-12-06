@@ -7,13 +7,13 @@ public:
    : mem_(n + 1) {
    }
 
-   void actualiza(int i, int v) {
+   void add(int i, int d) {
       for (i += 1; i < mem_.size( ); i += (i & -i)) {
-         mem_[i] += v;
+         mem_[i] += d;
       }
    }
 
-   int cuenta(int i) {
+   int prefix(int i) {
       int res = 0;
       for (i += 1; i != 0; i -= (i & -i)) {
          res += mem_[i];
@@ -26,12 +26,12 @@ private:
 };
 
 int main( ) {
-   fenwick_tree arbol(10);
+   fenwick_tree arbol(10);    // inicialmente todo en cero
 
    for (int i = 0; i < 10; ++i) {
-      arbol.actualiza(i, +1);
+      arbol.add(i, +1);
    }
    for (int i = 0; i < 10; ++i) {
-      std::cout << i << ": " << arbol.cuenta(i) << "\n";
+      std::cout << i << ": " << arbol.prefix(i) << "\n";
    }
 }

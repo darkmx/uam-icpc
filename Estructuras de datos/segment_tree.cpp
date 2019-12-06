@@ -1,5 +1,6 @@
 #include <functional>
 #include <iostream>
+#include <iterator>
 #include <numeric>
 #include <utility>
 #include <vector>
@@ -34,7 +35,7 @@ public:
       }
    }
 
-   void update(T v, int i) {
+   void replace(int i, T v) {
       for (int p = 0;; ++p, i /= 2) {
          pisos_[p][i] = std::move(v);
          if (i + (i % 2 == 0) == pisos_[p].size( )) {
@@ -89,11 +90,7 @@ int main( ) {
    }
    std::cout << s.query(5, 10) << "\n";
 
-   std::vector<int> v;
    s.visit(5, 10, [&](const int* ini, const int* fin) {
-      std::copy(ini, fin, std::back_inserter(v));
+      std::copy(ini, fin, std::ostream_iterator<int>(std::cout, " "));
    });
-   for (auto p : v) {
-      std::cout << p << " ";
-   }
 }

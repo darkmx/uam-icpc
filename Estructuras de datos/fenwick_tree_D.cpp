@@ -10,14 +10,14 @@ public:
    }
 
    template<typename... T>
-   void actualiza(int i, const T&... s) {
+   void add(int i, const T&... s) {
       for (i += 1; i < mem_.size( ); i += (i & -i)) {
          mem_[i].actualiza(s...);
       }
    }
 
    template<typename... T>
-   int cuenta(int i, const T&... s) {
+   int prefix(int i, const T&... s) {
       int res = 0;
       for (i += 1; i != 0; i -= (i & -i)) {
          res += mem_[i].cuenta(s...);

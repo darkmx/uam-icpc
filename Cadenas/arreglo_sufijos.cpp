@@ -7,7 +7,7 @@
 #include <vector>
 
 template<typename RI>
-std::vector<int> ranking(RI si, RI sf) {
+std::vector<int> suffix_ranking(RI si, RI sf) {
    std::vector<int> rank(si, sf), indices(sf - si);
    std::iota(indices.begin( ), indices.end( ), 0);
    for (int t = 1; t <= sf - si; t *= 2) {      // importante que se haga para sf - si == 1 pues se debe normalizar el rank inicial
@@ -70,7 +70,7 @@ int main( ) {
    std::string s;
    std::cin >> s;
 
-   auto rank = ranking(s.begin( ), s.end( ));
+   auto rank = suffix_ranking(s.begin( ), s.end( ));
    auto suffix = suffix_array(s.begin( ), s.end( ), rank);
    auto lcp = longest_prefix(s.begin( ), s.end( ), rank, suffix);
 

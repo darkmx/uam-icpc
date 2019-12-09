@@ -48,7 +48,7 @@ std::vector<int> longest_prefix(RI si, RI sf, const std::vector<int>& rank, cons
 }
 
 template<typename RI1, typename RI2>
-RI1 substring_search(RI1 si, RI1 sf, const std::vector<RI1>& rank, RI2 bi, RI2 bf) {
+RI1 substring_search(RI1 si, RI1 sf, const std::vector<RI1>& suffix, RI2 bi, RI2 bf) {
    struct comparador {
       const int pos;
       bool operator()(RI1 iter, char c) {
@@ -59,12 +59,12 @@ RI1 substring_search(RI1 si, RI1 sf, const std::vector<RI1>& rank, RI2 bi, RI2 b
       }
    };
 
-   auto ri = rank.begin( ), rf = rank.end( );
+   auto xi = suffix.begin( ), xf = suffix.end( );
    for (int i = 0; i < bf - bi; ++i) {
-      auto temp = std::equal_range(ri, rf, bi[i], comparador{i});
-      ri = temp.first, rf = temp.second;
+      auto temp = std::equal_range(xi, xf, bi[i], comparador{i});
+      xi = temp.first, xf = temp.second;
    }
-   return (ri == rf ? sf : *ri);
+   return (xi == xf ? sf : *xi);
 }
 
 int main( ) {

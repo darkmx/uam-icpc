@@ -46,15 +46,40 @@ std::vector<int> longest_prefix(RI si, RI sf, const std::vector<int>& rank, cons
    return res;
 }
 
+template<typename RI1, typename RI2>
+RI1 substring_search(RI1 si, RI1 sf, const std::vector<RI1>& rank, RI2 bi, RI2 bf) {
+   struct comparador {
+      const int pos;
+      bool operator()(RI1 iter, char c) {
+         return iter[pos] < c;
+      }
+      bool operator()(char c, RI1 iter) {
+         return c < iter[pos];
+      }
+   };
+
+   auto ri = rank.begin( ), rf = rank.end( );
+   for (int i = 0; i < bf - bi; ++i) {
+      auto temp = std::equal_range(ri, rf, bi[i], comparador{i});
+      ri = temp.first, rf = temp.second;
+   }
+   return (ri == rf ? sf : *ri);
+}
+
 int main( ) {
    std::string s;
    std::cin >> s;
 
-   auto r = ranking(s.begin( ), s.end( ));
-   auto a = suffix_array(s.begin( ), s.end( ), r);
-   auto p = longest_prefix(s.begin( ), s.end( ), r, a);
+   auto rank = ranking(s.begin( ), s.end( ));
+   auto suffix = suffix_array(s.begin( ), s.end( ), rank);
+   auto lcp = longest_prefix(s.begin( ), s.end( ), rank, suffix);
 
    for (int i = 0; i < s.size( ); ++i) {
-      std::cout << std::string(a[i], s.end( )) << ": " << p[i] << "\n";
+      std::cout << std::string(suffix[i], s.end( )) << ": " << lcp[i] << "\n";
    }
+
+   std::string b;
+   std::cin >> b;
+
+   std::cout << (substring_search(s.begin( ), s.end( ), suffix, b.begin( ), b.end( )) != s.end( ) ? 'y' : 'n') << "\n";
 }

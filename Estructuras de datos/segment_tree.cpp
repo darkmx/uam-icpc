@@ -16,6 +16,10 @@ public:
       return pisos_[0].size( );
    }
 
+   const T& operator[](int i) const {
+      return pisos_[0][i];
+   }
+
    void push_back(T v) {
       for (int p = 0;; ++p, pisos_.resize(std::max(p + 1, int(pisos_.size( ))))) {
          pisos_[p].push_back(std::move(v));

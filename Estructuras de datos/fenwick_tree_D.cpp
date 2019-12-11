@@ -1,24 +1,34 @@
 #include <iostream>
 #include <vector>
 
-template<int D>
+template<typename T, int D>
 class fenwick_tree {
 public:
-   template<typename... T>
-   fenwick_tree(int n, const T&... s)
-   : mem_(n + 1, fenwick_tree<D - 1>(s...)) {
+   template<typename... P>
+   fenwick_tree(int n, const P&... s)
+   : mem_(n + 1, fenwick_tree<T, D - 1>(s...)) {
    }
 
-   template<typename... T>
-   void add(int i, const T&... s) {
+   template<typename... P>
+   T current(int i, const P&... s) {
+      return prefix(i, s...) - (i != 0 ? prefix(i - 1, s...) : 0);
+   }
+
+   /*template<typename... P>
+   void replace(int i, const P&... s) {
+      advance(i, v - current(i, s...));
+   }*/
+
+   template<typename... P>
+   void advance(int i, const P&... s) {
       for (i += 1; i < mem_.size( ); i += (i & -i)) {
-         mem_[i].add(s...);
+         mem_[i].advance(s...);
       }
    }
 
-   template<typename... T>
-   int prefix(int i, const T&... s) {
-      int res = 0;
+   template<typename... P>
+   T prefix(int i, const P&... s) {
+      T res = 0;
       for (i += 1; i != 0; i -= (i & -i)) {
          res += mem_[i].prefix(s...);
       }
@@ -26,29 +36,37 @@ public:
    }
 
 private:
-   std::vector<fenwick_tree<D - 1>> mem_;
+   std::vector<fenwick_tree<T, D - 1>> mem_;
 };
 
-template<>
-class fenwick_tree<0> {
+template<typename T>
+class fenwick_tree<T, 0> {
 public:
-   void add(int v) {
+   T current( ) {
+      return v_;
+   }
+
+   void replace(int i, const T& v) {
+      v_ = v;
+   }
+
+   void advance(const T& v) {
       v_ += v;
    }
 
-   int prefix( ) {
+   T prefix( ) {
       return v_;
    }
 
 private:
-   int v_ = 0;
+   T v_ = 0;
 };
 
 int main( ) {
    prueba_1d: {
-      fenwick_tree<1> arbol(10);
-      arbol.add(2, +1);
-      arbol.add(4, +1);
+      fenwick_tree<int, 1> arbol(10);
+      arbol.advance(2, +1);
+      arbol.advance(4, +1);
 
       for (int i = 0; i < 10; ++i) {
          std::cout << arbol.prefix(i) << " ";
@@ -59,9 +77,9 @@ int main( ) {
    std::cout << "\n\n";
 
    prueba_2d: {
-      fenwick_tree<2> arbol(10, 10);
-      arbol.add(2, 2, +1);
-      arbol.add(4, 4, +1);
+      fenwick_tree<int, 2> arbol(10, 10);
+      arbol.advance(2, 2, +1);
+      arbol.advance(4, 4, +1);
 
       for (int i = 0; i < 10; ++i) {
          for (int j = 0; j < 10; ++j) {

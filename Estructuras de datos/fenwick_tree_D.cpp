@@ -9,11 +9,6 @@ public:
    : mem_(n + 1, fenwick_tree<T, D - 1>(s...)) {
    }
 
-   template<typename... P>
-   T current(int i, const P&... s) {
-      return prefix(i, s...) - (i != 0 ? prefix(i - 1, s...) : 0);
-   }
-
    /*template<typename... P>
    void replace(int i, const P&... s) {
       advance(i, v - current(i, s...));

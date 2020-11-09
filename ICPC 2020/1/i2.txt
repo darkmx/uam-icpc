@@ -1,0 +1,5 @@
+4
+myColl#Pa.s.word
+myColl#3Pa.s.word
+myColl#35Pa.s.word
+myColl#3P5a.s.word

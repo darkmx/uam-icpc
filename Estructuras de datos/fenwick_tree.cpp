@@ -8,6 +8,10 @@ public:
    : mem_(n + 1) {
    }
 
+   int size( ) const {
+      return mem_.size( ) - 1;
+   }
+
    T current(int i) {
       return prefix(i) - (i != 0 ? prefix(i - 1) : 0);
    }
@@ -22,7 +26,7 @@ public:
       }
    }
 
-   T prefix(int i) {
+   T prefix(int i) const {
       T res = 0;
       for (i += 1; i != 0; i -= (i & -i)) {
          res += mem_[i];

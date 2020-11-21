@@ -22,7 +22,7 @@ public:
    }
 
    template<typename... P>
-   T prefix(int i, const P&... s) {
+   T prefix(int i, const P&... s) const {
       T res = 0;
       for (i += 1; i != 0; i -= (i & -i)) {
          res += mem_[i].prefix(s...);
@@ -49,7 +49,7 @@ public:
       v_ += v;
    }
 
-   T prefix( ) {
+   T prefix( ) const {
       return v_;
    }
 

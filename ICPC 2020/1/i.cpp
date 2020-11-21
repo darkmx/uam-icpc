@@ -4,6 +4,13 @@
 #include <ctype.h>
 
 bool valida_mayus(const std::string& s) {
+   for (int i = 0; i < s.size( ); ++i) {
+      if ('A' <= s[i] && s[i] <= 'Z') {  // if (issuper(s[i])) {
+         return true;
+      }
+   }
+   return false;
+
    return std::any_of(s.begin( ), s.end( ), isupper);
 }
 

@@ -1,7 +1,6 @@
 #include <algorithm>
 #include <functional>
 #include <iostream>
-#include <iterator>
 #include <numeric>
 #include <utility>
 #include <vector>
@@ -9,7 +8,7 @@
 template<typename T, typename F = const T&(*)(const T&, const T&)>
 class segment_tree {
 public:
-   segment_tree(T n = { }, F f = { })
+   segment_tree(T n, F f)
    : pisos_(1), neutro_(std::move(n)), funcion_(std::move(f)) {
    }
 
@@ -32,7 +31,7 @@ public:
    }
 
    void pop_back( ) {
-      for (int p = 0; p < pisos_.size( ); ++p) {
+      for (int p = 0;; ++p) {
          pisos_[p].pop_back( );
          if (pisos_[p].size( ) % 2 == 0) {
             break;
@@ -52,50 +51,38 @@ public:
 
    T query(int ini, int fin) const {
       T res = neutro_;
-      visit_(ini, fin, pisos_.size( ) - 1, [&](const T* ini, const T* fin) {
-         res = funcion_(res, std::accumulate(ini, fin, neutro_, funcion_));
+      visit(ini, fin, [&](const T& actual) {
+         res = funcion_(res, actual);
       });
       return res;
    }
 
    template<typename V>
-   void visit(int ini, int fin, V&& v) const {
-      visit_(ini, fin, pisos_.size( ) - 1, v);
-   }
-
-private:
-   template<typename V>
-   void visit_(int ini, int fin, int p, V&& v) const {
-      if (ini != fin) {
-         int grupo = 1 << p, xi = ini / grupo + bool(ini % grupo), xf = fin / grupo;
-         if (xi < xf && xf <= pisos_[p].size( )) {
-            v(pisos_[p].data( ) + xi, pisos_[p].data( ) + xf);
-            visit_(ini, xi * grupo, p - 1, v);
-            visit_(xf * grupo, fin, p - 1, v);
-         } else {
-            visit_(ini, fin, p - 1, v);
+   void visit(int ini, int fin, V&& vis) const {
+      for (int p = 0; ini != fin; ++p, ini /= 2, fin /= 2) {
+         if (ini % 2 == 1) {
+            vis(pisos_[p][ini++]);
+         }
+         if (fin % 2 == 1) {
+            vis(pisos_[p][--fin]);
          }
       }
    }
 
+private:
    std::vector<std::vector<T>> pisos_;
    F funcion_;
    T neutro_;
 };
 
-template<typename T, typename F>
-segment_tree<T, F> make_segment_tree(T neutro, F f) {
-   return segment_tree<T, F>(std::move(neutro), std::move(f));
-}
-
 int main( ) {
-   segment_tree<int, std::plus<int>> s;
+   segment_tree s(0, std::plus( ));
    for (int i = 0; i < 50; ++i) {
       s.push_back(i);
    }
    std::cout << s.query(5, 10) << "\n";
 
-   s.visit(5, 10, [&](const int* ini, const int* fin) {
-      std::copy(ini, fin, std::ostream_iterator<int>(std::cout, " "));
+   s.visit(5, 10, [&](int actual) {
+      std::cout << actual << " ";
    });
 }

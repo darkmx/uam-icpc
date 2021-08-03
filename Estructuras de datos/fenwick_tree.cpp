@@ -12,18 +12,18 @@ public:
       return mem_.size( ) - 1;
    }
 
-   T current(int i) {
+   T operator[](int i) const {
       return prefix(i) - (i != 0 ? prefix(i - 1) : 0);
    }
 
-   void replace(int i, const T& v) {
-      advance(i, v - current(i));
-   }
-
-   void advance(int i, const T& d) {
+   void add(int i, const T& d) {
       for (i += 1; i < mem_.size( ); i += (i & -i)) {
          mem_[i] += d;
       }
+   }
+
+   void replace(int i, const T& v) {
+      add(i, v - operator[](i));
    }
 
    T prefix(int i) const {
@@ -42,16 +42,16 @@ int main( ) {
    fenwick_tree<int> arbol(10);    // inicialmente todo en cero
 
    for (int i = 0; i < 10; ++i) {
-      arbol.advance(i, +1);
+      arbol.add(i, +1);
    }
    for (int i = 0; i < 10; ++i) {
-      std::cout << i << ": " << arbol.current(i) << " (" << arbol.prefix(i) << ")\n";
+      std::cout << i << ": " << arbol[i] << " (" << arbol.prefix(i) << ")\n";
    }
    std::cout << "\n";
 
    arbol.replace(4, 5);
    for (int i = 0; i < 10; ++i) {
-      std::cout << i << ": " << arbol.current(i) << " (" << arbol.prefix(i) << ")\n";
+      std::cout << i << ": " << arbol[i] << " (" << arbol.prefix(i) << ")\n";
    }
    std::cout << "\n";
 }

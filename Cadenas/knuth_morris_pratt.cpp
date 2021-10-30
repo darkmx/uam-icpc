@@ -1,11 +1,11 @@
-#include <ctime>
 #include <iostream>
-#include <random>
+#include <string>
 #include <vector>
+#include <stddef.h>
 
-std::vector<std::size_t> preprocesa(const std::string& s) {
-   std::vector<std::size_t> b = { std::size_t(-1) };
-   for (std::size_t i = 0, j = -1; i < s.size( ); ++i) {
+std::vector<size_t> preprocesa(const std::string& s) {
+   std::vector<size_t> b = { size_t(-1) };
+   for (size_t i = 0, j = -1; i < s.size( ); ++i) {
       while (j != -1 && s[i] != s[j]) {
          j = b[j];
       }
@@ -14,23 +14,28 @@ std::vector<std::size_t> preprocesa(const std::string& s) {
    return b;
 }
 
-std::size_t busca(const std::string& s, const std::string& t, const std::vector<std::size_t>& b) {
-   for (std::size_t i = 0, j = 0; i < t.size( ); ++i) {
+std::vector<size_t> busca(const std::string& s, const std::string& t, const std::vector<size_t>& b) {
+   std::vector<size_t> res;
+   for (size_t i = 0, j = 0; i < t.size( ); ++i) {
       while (j != -1 && t[i] != s[j]) {
          j = b[j];
       }
       if (++j == s.size( )) {
-         return i + 1 - s.size( );
+         res.push_back(i + 1 - s.size( ));
+         j = b[j];
       }
    }
-   return std::string::npos;
+   return res;
 }
 
 int main( ) {
-   std::string s = "abbabaabababaaabaaababbaaaababbabaaaba";
-   std::string p = "bbaaaababba";
+   std::string t = "abbabaabababaaabaaababbaaaababbabaaaba";
+   std::string s = "bbaaaababba";
 
-   auto pre = preprocesa(p);
-   auto res = busca(p, s, pre);
-   std::cout << res << "\n";
+   auto pre = preprocesa(s);
+   auto res = busca(s, t, pre);
+   std::cout << res.size( ) << "\n";
+   for (int pos : res) {
+      std::cout << pos << " ";
+   }
 }

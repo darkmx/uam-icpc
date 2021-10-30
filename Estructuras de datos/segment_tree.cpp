@@ -82,7 +82,7 @@ segment_tree<T, F> make_segment_tree(const T& v, F f) {
 
 int main( ) {
    // auto s = make_segment_tree(0, std::plus<int>( ));        < C++17
-   auto s = make_segment_tree(0, std::plus( ));
+   auto s = segment_tree(0, std::plus( ));
    for (int i = 0; i < 50; ++i) {
       s.push_back(i);
    }

@@ -1,12 +1,12 @@
 #include <algorithm>
+#include <vector>
 
-template<typename V>
-bool aumenta(const V& vecindad, int* regreso, int i, int m, bool* visto) {
-   for (int j = 0; j < m; ++j) {
-      if (vecindad(i, j) && !visto[j]) {
-         visto[j] = true;
-         if (regreso[j] == -1 || aumenta(vecindad, regreso, regreso[j], m, visto)) {
-            regreso[j] = i;
+bool aumenta(int a, const std::vector<int> adyacencia_a[], std::vector<int>& arista_b, std::vector<bool>& visto_b) {
+   for (int b : adyacencia_a[a]) {
+      if (!visto_b[b]) {
+         visto_b[b] = true;
+         if (arista_b[b] == -1 || aumenta(arista_b[b], adyacencia_a, arista_b, visto_b)) {
+            arista_b[b] = a;
             return true;
          }
       }
@@ -14,18 +14,18 @@ bool aumenta(const V& vecindad, int* regreso, int i, int m, bool* visto) {
    return false;
 }
 
-template<typename V>
-int acoplamiento(const V& vecindad, int* regreso, int n, int m) {
-   std::fill(regreso, regreso + m, -1);
-   for (int i = 0; i < n; ++i) {
-      bool visto[m] = { };
-      aumenta(vecindad, regreso, i, m, visto);
+std::pair<std::vector<int>, int> acoplamiento(const std::vector<int> adyacencia_a[], int tam_a, int tam_b) {
+   std::vector<int> arista_b(tam_b, -1);
+   for (int a = 0; a < tam_a; ++a) {
+      std::vector<bool> visto_b(tam_b, false);
+      aumenta(a, adyacencia_a, arista_b, visto_b);
    }
-   return m - std::count(regreso, regreso + m, -1);
+   int cardinalidad = tam_b - std::count(arista_b.begin( ), arista_b.end( ), -1);
+   return { std::move(arista_b), cardinalidad };
 }
 
 int main( ) {
-   // acoplamiento bipartito: |A| = n, |B| = m
-   // vecindad es una lambda, función u objeto función que toma dos identificadores de vértices (0 -> n-1 en A, 0 -> m-1 en B) y devuelve verdadero si existe una arista entre ellos
-   // regreso debe tener tamaño m; regreso[j] es el identificador del vértice A con el que está conectado el j de B
+   // acoplamiento bipartito: |A| = tam_a, |B| = tam_b
+   // Los identificadores de vértices van de 0 -> tam_a - 1 en A y 0 -> tam_b - 1 en B.
+   // La función regresa un arreglo de tam_b enteros que contienen los vértices de A con los que se conectan los vértices de B (-1 si un vértice de B no tiene pareja). También regresa la cardinalidad del emparejamiento
 }

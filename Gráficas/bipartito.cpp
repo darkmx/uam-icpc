@@ -3,7 +3,7 @@
 #include <tuple>
 #include <vector>
 
-namespace bipartito {
+namespace bipartito {      // https://github.com/foreverbell/acm-icpc-cheat-sheet/blob/master/src/graph-algorithm/hopcroft-karp.cpp
    bool aumenta(int a, std::vector<int> adyacencia_a[], std::vector<int>& nivel_a, std::vector<int>& pareja_a, std::vector<int>& pareja_b, bool visto_a[]) {
       visto_a[a] = true;
       for (int b : adyacencia_a[a]) {

@@ -1,3 +1,4 @@
+#include <bit>             // sólo si se necesita min_prefix
 #include <iostream>
 #include <vector>
 
@@ -26,6 +27,17 @@ public:
          res += mem_[f];
       }
       return res;
+   }
+
+   int min_prefix(T v) const {            // calcula la cantidad mínima de elementos (comenzando por la izquierda) que se necesitan
+      int i = 0;                          // para lograr un acumulado >= v; si es imposible lograr dicha suma, regresa .size( ) + 1
+      for (int j = std::bit_floor(mem_.size( )); j > 0; j /= 2) {
+         if (i + j < mem_.size( ) && mem_[i + j] <= v) {
+            v -= mem_[i + j];
+            i += j;
+         }
+      }
+      return i + (v > 0);
    }
 
    void replace(int i, const T& v) {
@@ -68,4 +80,12 @@ int main( ) {
    std::cout << arbol.query_until(10) << "\n";
    std::cout << arbol.query(8, 10) << "\n";
    std::cout << "\n";
+
+   for (int i = 0; i < 10; ++i) {
+      std::cout << arbol.query_until(i + 1) << " ";
+   }
+   std::cout << "\n";
+   for (int i = 0; i < 100; ++i) {
+      std::cout << i << ": " << arbol.min_prefix(i) << "\n";
+   }
 }

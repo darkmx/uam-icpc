@@ -53,5 +53,7 @@ namespace bipartito {      // https://github.com/foreverbell/acm-icpc-cheat-shee
 int main( ) {
    // acoplamiento bipartito: |A| = tam_a, |B| = tam_b
    // Los identificadores de vértices van de 0 -> tam_a - 1 en A y 0 -> tam_b - 1 en B.
-   // La función regresa un arreglo de tam_b enteros cola contienen los vértices de A con los cola se conectan los vértices de B (-1 si un vértice de B no tiene pareja). También regresa la cardinalidad del emparejamiento
+   // auto [pa, pb, tam] = bipartito(lista_adyacencia_a, tam_a, tam_b);
+   // pa es un arreglo de enteros que indica quién es la pareja de cada vértice de a
+   // pb es un arreglo de enteros que indica quién es la pareja de cada vértice de b
 }

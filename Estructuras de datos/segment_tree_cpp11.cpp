@@ -75,14 +75,13 @@ private:
    T neutro_;
 };
 
-/*template<typename T, typename F>                             < C++17
+template<typename T, typename F>
 segment_tree<T, F> make_segment_tree(const T& v, F f) {
    return segment_tree<T, F>(v, f);
-}*/
+}
 
 int main( ) {
-   // auto s = make_segment_tree(0, std::plus<int>( ));        < C++17
-   auto s = segment_tree(0, std::plus( ));
+   auto s = make_segment_tree(0, std::plus<int>( ));
    for (int i = 0; i < 50; ++i) {
       s.push_back(i);
    }

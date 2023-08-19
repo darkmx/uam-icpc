@@ -13,7 +13,6 @@ T busqueda_binaria(T ini, T fin, F pred) {
          ini = mitad + 1;
       }
    }
-
    return res;
 }
 

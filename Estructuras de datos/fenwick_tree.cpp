@@ -29,8 +29,8 @@ public:
       return res;
    }
 
-   int min_prefix(T v) const {            // calcula la cantidad mínima de elementos (comenzando por la izquierda) que se necesitan
-      int i = 0;                          // para lograr un acumulado >= v; si es imposible lograr dicha suma, regresa .size( ) + 1
+   int min_prefix(T v) const {            // calcula la cantidad mínima de elementos (comenzando por la izquierda) que se necesitan para lograr un acumulado >= v;
+      int i = 0;                          // si es imposible lograr dicha suma, regresa .size( ) + 1
       for (int j = std::bit_floor(mem_.size( )); j > 0; j /= 2) {
          if (i + j < mem_.size( ) && mem_[i + j] <= v) {
             v -= mem_[i + j];

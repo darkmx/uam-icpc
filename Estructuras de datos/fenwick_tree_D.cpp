@@ -1,4 +1,7 @@
+#include <array>
+#include <bit>
 #include <iostream>
+#include <tuple>
 #include <vector>
 
 template<typename T, int D>
@@ -17,15 +20,44 @@ public:
    }
 
    template<typename... P>
-   T prefix_until(int f, const P&... s) const {
+   T operator[](const P&... x) {             // C++23
+      return query(x..., (x + 1)...);
+   }
+
+   template<typename... P>
+   T operator()(const P&... x) {             // C++20 o menor
+      return query(x..., (x + 1)...);
+   }
+
+   template<typename... P>
+   T query(const P&... x) {
+      static_assert(sizeof...(P) == 2 * D);
+      return query(std::make_index_sequence<D>( ), std::array<int, 2 * D>{ x... });
+   }
+
+   template<typename... P>
+   T query_until(int f, const P&... s) const {
       T res = 0;
       for (; f != 0; f -= (f & -f)) {
-         res += mem_[f].prefix_until(s...);
+         res += mem_[f].query_until(s...);
       }
       return res;
    }
 
 private:
+   template<std::size_t... I, typename... P>
+   T query(std::index_sequence<I...> i, const std::array<int, 2 * D>& indices) {
+      T res = 0;
+      for (unsigned i = 0; i < (1 << D); ++i) {
+         std::array<int, D> actual;
+         for (int j = 0; j < D; ++j) {
+            actual[j] = indices[bool(i & (1 << j)) * D + j];
+         }
+         res += (std::popcount(i) % 2 == D % 2 ? +1 : -1) * query_until(actual[I]...);
+      }
+      return res;
+   }
+
    std::vector<fenwick_tree<T, D - 1>> mem_;
 };
 
@@ -36,7 +68,7 @@ public:
       v_ += d;
    }
 
-   T prefix_until( ) const {
+   T query_until( ) const {
       return v_;
    }
 
@@ -47,10 +79,15 @@ private:
 int main( ) {
    prueba_1d: {
       fenwick_tree<int, 1> arbol(10);
-      arbol.modify_add(2, +1);
+      arbol.modify_add(2, 1);
       arbol.modify_add(4, 1);
+
       for (int i = 0; i < 10; ++i) {
-         std::cout << arbol.prefix_until(i + 1) << " ";
+         std::cout << arbol[i] << " ";
+      }
+      std::cout << "\n";
+      for (int i = 0; i < 10; ++i) {
+         std::cout << arbol.query_until(i + 1) << " ";
       }
       std::cout << "\n";
    }
@@ -63,7 +100,14 @@ int main( ) {
       arbol.modify_add(4, 4, 1);
       for (int i = 0; i < 10; ++i) {
          for (int j = 0; j < 10; ++j) {
-            std::cout << arbol.prefix_until(i + 1, j + 1) << " ";
+            std::cout << arbol[i, j] << " ";
+         }
+         std::cout << "\n";
+      }
+      std::cout << "\n\n";
+      for (int i = 0; i < 10; ++i) {
+         for (int j = 0; j < 10; ++j) {
+            std::cout << arbol.query_until(i + 1, j + 1) << " ";
          }
          std::cout << "\n";
       }

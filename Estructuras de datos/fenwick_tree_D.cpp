@@ -45,15 +45,20 @@ public:
    }
 
 private:
+   /*template<std::size_t... I, typename... P>
+   T query(std::index_sequence<I...> i, const std::array<int, 2 * D>& indices) {
+      T res = 0;
+      for (int i = 0, s = (D % 2 == 0 ? +1 : -1); i < (1 << D); ++i, s *= -1) {
+         res += s * query_until(indices[bool(i & (1 << I)) * D + I]...);
+      }
+      return res;
+   }*/
+
    template<std::size_t... I, typename... P>
    T query(std::index_sequence<I...> i, const std::array<int, 2 * D>& indices) {
       T res = 0;
       for (unsigned i = 0; i < (1 << D); ++i) {
-         std::array<int, D> actual;
-         for (int j = 0; j < D; ++j) {
-            actual[j] = indices[bool(i & (1 << j)) * D + j];
-         }
-         res += (std::popcount(i) % 2 == D % 2 ? +1 : -1) * query_until(actual[I]...);
+         res += (std::popcount(i) % 2 == D % 2 ? +1 : -1) * query_until(indices[bool(i & (1 << I)) * D + I]...);
       }
       return res;
    }

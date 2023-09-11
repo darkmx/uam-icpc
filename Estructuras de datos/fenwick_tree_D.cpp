@@ -45,15 +45,6 @@ public:
    }
 
 private:
-   /*template<std::size_t... I, typename... P>
-   T query(std::index_sequence<I...> i, const std::array<int, 2 * D>& indices) {
-      T res = 0;
-      for (int i = 0, s = (D % 2 == 0 ? +1 : -1); i < (1 << D); ++i, s *= -1) {
-         res += s * query_until(indices[bool(i & (1 << I)) * D + I]...);
-      }
-      return res;
-   }*/
-
    template<std::size_t... I, typename... P>
    T query(std::index_sequence<I...> i, const std::array<int, 2 * D>& indices) {
       T res = 0;

@@ -13,7 +13,7 @@ template<typename RI1, typename RI2>
 auto cerco_parcial(RI1 ai, RI1 af, RI2 bi) {
    auto bw = bi;
    for (; ai != af; *bw++ = *ai++) {
-      while (bw - bi >= 2 && producto_cruz(*(bw - 2), *(bw - 1), *ai) <= 0) {
+      while (bw - bi >= 2 && producto_cruz(*(bw - 2), *(bw - 1), *ai) <= 0) {       // < 0 para permitir empates en línea recta
          --bw;
       }
    }
@@ -25,7 +25,7 @@ auto cerco_convexo(RI ai, RI af) {
    if (af - ai <= 2) {
       return std::vector<typename std::iterator_traits<RI>::value_type>(ai, af);
    }
-   std::vector<typename std::iterator_traits<RI>::value_type> res(af - ai + 2);
+   std::vector<typename std::iterator_traits<RI>::value_type> res(2 * (af - ai));
    auto iter1 = cerco_parcial(ai, af, res.begin( )) - 1;
    auto iter2 = cerco_parcial(std::make_reverse_iterator(af), std::make_reverse_iterator(ai), iter1) - 1;
    res.resize(iter2 - res.begin( ));
@@ -46,7 +46,7 @@ auto perimetro(const std::vector<T>& puntos) {
 }
 
 struct punto {
-   double x, y;
+   double x, y;      // si no necesitan doubles, pasarlos a int porque es más rápido
    bool operator<(const punto& p) const {
       return std::pair(x, y) < std::pair(p.x, p.y);
    }

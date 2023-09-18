@@ -1,7 +1,6 @@
 #include <algorithm>
 #include <functional>
 #include <iostream>
-#include <numeric>
 #include <utility>
 #include <vector>
 

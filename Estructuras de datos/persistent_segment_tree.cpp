@@ -15,8 +15,8 @@ class persistent_segment_tree {
 
 public:
    template<typename I>
-   persistent_segment_tree(T n, F f, int t, I&& entrada)
-   : mem_(std::make_shared<std::deque<nodo>>( )), neutro_(std::move(n)), funcion_(std::move(f)), tam_(t), raiz_(construye(0, t, entrada)) {
+   persistent_segment_tree(T n, F f, I&& entrada, int t)
+   : mem_(std::make_shared<std::deque<nodo>>( )), neutro_(std::move(n)), funcion_(std::move(f)), tam_(t), raiz_(replace(nullptr, 0, tam_, 0, tam_, entrada)) {
    }
 
    int size( ) const {
@@ -40,7 +40,7 @@ public:
    }
 
    persistent_segment_tree replace(int i, T v) {
-      return { mem_, neutro_, funcion_, tam_, replace(raiz_, i, 0, tam_, std::move(v)) };
+      return { neutro_, funcion_, tam_, replace(raiz_, i, i + 1, 0, tam_, [&]( ) { return std::move(v); }), mem_ };
    }
 
    template<typename V>
@@ -49,36 +49,20 @@ public:
    }
 
 private:
-   persistent_segment_tree(std::shared_ptr<std::deque<nodo>>& m, T n, F f, int t, nodo* r)
-   : mem_(m), neutro_(std::move(n)), funcion_(std::move(f)), tam_(t), raiz_(r) {
+   persistent_segment_tree(T n, F f, int t, nodo* r, std::shared_ptr<std::deque<nodo>>& m)
+   : mem_(m), neutro_(std::move(n)), funcion_(std::move(f)), raiz_(r), tam_(t) {
    }
 
    template<typename I>
-   nodo* construye(int ini, int fin, I& entrada) {
-      if (ini == fin) {
-         return nullptr;
+   nodo* replace(nodo* p, int qi, int qf, int ini, int fin, I&& entrada) {
+      if (ini == fin || qi >= qf) {
+         return p;
       } else if (fin - ini == 1) {
          return crea(entrada( ));
       } else {
-         int mitad = ini + (fin - ini) / 2;
-         auto izq = construye(ini, mitad, entrada), der = construye(mitad, fin, entrada);
-         return crea(funcion_(izq->valor, der->valor), izq, der);
-      }
-   }
-
-   nodo* replace(nodo* p, int i, int ini, int fin, T&& v) {
-      if (ini == fin) {
-         return nullptr;
-      } else if (fin - ini == 1) {
-         return crea(std::move(v));
-      } else {
          int mitad = ini + (fin - ini) / 2, tam = fin - ini;
-         auto izq = p->izq, der = p->der;
-         if (i < tam / 2) {
-            izq = replace(p->izq, i, ini, mitad, std::move(v));
-         } else {
-            der = replace(p->der, i - tam / 2, mitad, fin, std::move(v));
-         }
+         auto izq = replace((p == nullptr ? nullptr : p->izq), qi, std::min(qf, mitad), ini, mitad, entrada);
+         auto der = replace((p == nullptr ? nullptr : p->der), std::max(qi, mitad), qf, mitad, fin, entrada);
          return crea(funcion_(izq->valor, der->valor), izq, der);
       }
    }
@@ -98,8 +82,7 @@ private:
 
    template<typename... P>
    nodo* crea(P&&... v) {
-      mem_->push_back(nodo{std::forward<P>(v)...});
-      return &mem_->back( );
+      return &*mem_->insert(mem_->end( ), nodo{std::forward<P>(v)...});
    }
 
    std::shared_ptr<std::deque<nodo>> mem_;
@@ -110,24 +93,24 @@ private:
 };
 
 int main( ) {
-   auto s1 = persistent_segment_tree(0, std::plus( ), 50, [i = 0]( ) mutable {
+   auto s1 = persistent_segment_tree(0, std::plus( ), [i = 0]( ) mutable {
       return i++;
-   });
+   }, 50);
    auto s2 = s1.replace(13, 27);
    auto s3 = s2.replace(42, -14);
 
    auto imprime = [&](const auto& s) {
       for (int i = 0; i < s.size( ); ++i) {
-         std::cout << s1[i] << " ";
+         std::cout << s[i] << " ";
       }
       std::cout << "\n";
    };
    imprime(s1), imprime(s2), imprime(s3);
 
-   int arr[50];
-   std::iota(arr, arr + 50, 0);
-   for (int i = 0; i <= 50; ++i) {
-      for (int f = i; f <= 50; ++f) {
+   int arr[s1.size( )];
+   std::iota(arr, arr + s1.size( ), 0);
+   for (int i = 0; i <= s1.size( ); ++i) {
+      for (int f = i; f <= s1.size( ); ++f) {
          if (std::accumulate(arr + i, arr + f, 0) != s1.query(i, f)) {
             std::cout << "X_X\n";
          }
@@ -135,8 +118,8 @@ int main( ) {
    }
 
    arr[13] = 27;
-   for (int i = 0; i <= 50; ++i) {
-      for (int f = i; f <= 50; ++f) {
+   for (int i = 0; i <= s2.size( ); ++i) {
+      for (int f = i; f <= s2.size( ); ++f) {
          if (std::accumulate(arr + i, arr + f, 0) != s2.query(i, f)) {
             std::cout << "X_X\n";
          }
@@ -144,8 +127,8 @@ int main( ) {
    }
 
    arr[42] = -14;
-   for (int i = 0; i <= 50; ++i) {
-      for (int f = i; f <= 50; ++f) {
+   for (int i = 0; i <= s3.size( ); ++i) {
+      for (int f = i; f <= s3.size( ); ++f) {
          if (std::accumulate(arr + i, arr + f, 0) != s3.query(i, f)) {
             std::cout << "X_X\n";
          }

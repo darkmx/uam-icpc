@@ -6,7 +6,7 @@
 #include <utility>
 #include <vector>
 
-template<typename T, typename U, typename F1 = const T&(*)(const T&, const T&), typename F2 = void(*)(T&, int n, const U&), typename F3 = const U&(*)(const U&, const U&)>
+template<typename T, typename U, typename F1 = const T&(*)(const T&, const T&), typename F2 = bool(*)(T&, int n, const U&), typename F3 = const U&(*)(const U&, const U&)>
 class lazy_segment_tree {
    struct nodo {
       T valor;

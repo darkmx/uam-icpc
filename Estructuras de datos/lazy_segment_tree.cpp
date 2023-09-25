@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <climits>
 #include <functional>
 #include <iostream>
 #include <limits>

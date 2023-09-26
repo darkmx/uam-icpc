@@ -19,6 +19,11 @@ public:
    : mem_(std::make_shared<std::deque<nodo>>( )), neutro_(std::move(n)), funcion_(std::move(f)), tam_(t), raiz_(replace(nullptr, 0, tam_, 0, tam_, entrada)) {
    }
 
+   template<typename RI>
+   persistent_segment_tree(T n, F f, RI ini, RI fin)
+   : persistent_segment_tree(std::move(n), std::move(f), [&]( ) { return *ini++; }, fin - ini) {
+   }
+
    int size( ) const {
       return tam_;
    }

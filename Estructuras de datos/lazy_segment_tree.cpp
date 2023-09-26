@@ -21,6 +21,11 @@ public:
       construye(0, 0, t, entrada);
    }
 
+   template<typename RI>
+   lazy_segment_tree(T n1, U n2, F1 f1, F2 f2, F3 f3, RI ini, RI fin)
+   : lazy_segment_tree(std::move(n1), std::move(n2), std::move(f1), std::move(f2), std::move(f3), [&]( ) { return *ini++; }, fin - ini) {
+   }
+
    int size( ) const {
       return tam_;
    }

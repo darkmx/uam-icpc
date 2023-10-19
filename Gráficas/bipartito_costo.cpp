@@ -22,11 +22,13 @@
 
 using namespace std;
 
-typedef vector<double> VD;  // el algoritmo usa double para los costos durante el cálculo
-typedef vector<VD> VVD;     // std::vector<std::vector<double>> como matriz de adyacencia para los costos
+typedef double CT;          // el tipo de los costos de las aristas
+typedef vector<CT> VD;
+typedef vector<VD> VVD;     // std::vector<std::vector<CT>> como matriz de adyacencia para los costos
 typedef vector<int> VI;     // std::vector<int> para guardar el índice de la pareja (pasarlo vacío, el algoritmo lo llena)
+                            // la matriz debe ser cuadrada; rellenarla en caso de que no se cumpla
 
-double MinCostMatching(const VVD &cost, VI &Lmate, VI &Rmate) {
+CT MinCostMatching(const VVD &cost, VI &Lmate, VI &Rmate) {
   int n = int(cost.size());
 
   // construct dual feasible solution
@@ -92,7 +94,7 @@ double MinCostMatching(const VVD &cost, VI &Lmate, VI &Rmate) {
       const int i = Rmate[j];
       for (int k = 0; k < n; k++) {
     if (seen[k]) continue;
-    const double new_dist = dist[j] + cost[i][k] - u[i] - v[k];
+    const CT new_dist = dist[j] + cost[i][k] - u[i] - v[k];
     if (dist[k] > new_dist) {
       dist[k] = new_dist;
       dad[k] = j;
@@ -122,7 +124,7 @@ double MinCostMatching(const VVD &cost, VI &Lmate, VI &Rmate) {
     mated++;
   }
 
-  double value = 0;
+  CT value = 0;
   for (int i = 0; i < n; i++)
     value += cost[i][Lmate[i]];
 

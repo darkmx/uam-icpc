@@ -97,7 +97,6 @@ int main( ) {
       int u, v, cap;
       std::cin >> u >> v >> cap;
       dinic.AddEdge(u, v, cap);
-      dinic.AddEdge(v, u, cap);
    }
    std::cout << dinic.MaxFlow(0, n - 1);
 }

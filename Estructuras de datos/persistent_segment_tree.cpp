@@ -97,6 +97,8 @@ private:
    nodo* raiz_;
 };
 
+// < C++17 checar segment_tree
+
 int main( ) {
    auto s1 = persistent_segment_tree(0, std::plus( ), [i = 0]( ) mutable {
       return i++;

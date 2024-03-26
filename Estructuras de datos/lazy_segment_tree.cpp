@@ -105,6 +105,8 @@ private:
    int tam_;
 };
 
+// < C++17 checar segment_tree
+
 #include <numeric>
 
 int main( ) {

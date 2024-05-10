@@ -122,9 +122,9 @@ int main( ) {
          0,
          0,
          std::plus( ),
-         [](int& a, int n, int b) { return a += n * b, true; },
+         [](int& a, int n, int b) { return a += n * b, true; },         // ver el problema de "modificando las ocurrencias del máximo" para un ejemplo donde no se regresa true
          std::plus( ),
-      [i = 0]( ) mutable {
+      [i = 0]( ) mutable {       // valores iniciales (ESTA FEO)
          return i++;
       }, 50);
       imprime(s);

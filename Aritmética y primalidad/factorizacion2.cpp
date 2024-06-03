@@ -18,7 +18,7 @@ int64_t potencia(int64_t b, int64_t e, int64_t mod) {
     return res;
 }
 
-bool primalidad_miller_rabin(int64_t n) {      // versión determinista: https://cp-algorithms.com/algebra/primality_tests.html
+bool primalidad_miller_rabin(int64_t n) {      // versiÃ³n determinista: https://cp-algorithms.com/algebra/primality_tests.html
    if (n < 2) {
       return false;
    }
@@ -68,7 +68,7 @@ int64_t factor_pollard_rho(int64_t n, int64_t c) {
    }
 }
 
-std::vector<int64_t> factoriza(int64_t n) {      // suposición: n >= 2
+std::vector<int64_t> factoriza(int64_t n) {      // suposiciÃ³n: n >= 2
    std::vector<int64_t> factores;
    if (primalidad_miller_rabin(n)) {
       factores.push_back(n);

@@ -1,31 +1,35 @@
+#include <algorithm>
 #include <iostream>
-#include <numeric>
 #include <vector>
 
 struct union_find {
-   std::vector<int> repr;
+   std::vector<int> data;
 
    union_find(int n)
-   : repr(n) {
-      std::iota(repr.begin( ), repr.end( ), 0);
+   : data(n, -1) {
    }
 
    int leader(int i) {
-      if (repr[i] != i) {
-         repr[i] = leader(repr[i]);
-      }
-      return repr[i];
+      return (data[i] < 0 ? i : data[i] = leader(data[i]));
+   }
+
+   int size(int i) {
+      return -data[leader(i)];
+   }
+
+   bool connected(int i, int j) {
+      return leader(i) == leader(j);
    }
 
    void join(int i, int j) {
       int ri = leader(i), rj = leader(j);
       if (ri != rj) {
-         repr[ri] = rj;
+        if (-data[ri] < -data[rj]) {
+          std::swap(ri, rj);
+        }
+        data[ri] += data[rj];
+        data[rj] = ri;
       }
-   }
-
-   bool connected(int i, int j) {
-      return leader(i) == leader(j);
    }
 };
 

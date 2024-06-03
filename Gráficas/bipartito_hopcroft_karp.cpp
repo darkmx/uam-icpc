@@ -3,6 +3,7 @@
 #include <tuple>
 #include <vector>
 
+// O(v^2.5)
 namespace bipartito {      // https://github.com/foreverbell/acm-icpc-cheat-sheet/blob/master/src/graph-algorithm/hopcroft-karp.cpp
    bool aumenta(int a, std::vector<int> adyacencia_a[], std::vector<int>& nivel_a, std::vector<int>& pareja_a, std::vector<int>& pareja_b, bool visto_a[]) {
       visto_a[a] = true;
@@ -52,8 +53,8 @@ namespace bipartito {      // https://github.com/foreverbell/acm-icpc-cheat-shee
 
 int main( ) {
    // acoplamiento bipartito: |A| = tam_a, |B| = tam_b
-   // Los identificadores de vértices van de 0 -> tam_a - 1 en A y 0 -> tam_b - 1 en B.
+   // Los identificadores de vÃ©rtices van de 0 -> tam_a - 1 en A y 0 -> tam_b - 1 en B.
    // auto [pa, pb, tam] = bipartito(lista_adyacencia_a, tam_a, tam_b);
-   // pa es un arreglo de enteros que indica quién es la pareja de cada vértice de a
-   // pb es un arreglo de enteros que indica quién es la pareja de cada vértice de b
+   // pa es un arreglo de enteros que indica quiÃ©n es la pareja de cada vÃ©rtice de a
+   // pb es un arreglo de enteros que indica quiÃ©n es la pareja de cada vÃ©rtice de b
 }

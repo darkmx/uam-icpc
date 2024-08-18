@@ -47,23 +47,23 @@ std::vector<int> longest_prefix(RI si, RI sf, const std::vector<int>& rank, cons
 }
 
 template<typename RI1, typename RI2>
-auto substring_search(RI1 si, RI1 sf, const std::vector<RI1>& suffix, const std::vector<int>& lcp, RI2 bi, RI2 bf) {
-   auto xi = suffix.begin( ), xf = suffix.end( );
-   auto li = lcp.begin( ), lf = lcp.end( );
-   for (int i = 0; i < bf - bi; ++i) {
-      while (xi != xf && (*xi)[i] != bi[i] && *li >= i) {
-         ++xi, ++li;
+auto substring_search(const std::vector<RI1>& suffix, RI2 bi, RI2 bf) {
+   struct comparador {
+      const int pos;
+      bool operator()(RI1 iter, char c) {
+         return iter[pos] < c;
       }
-      if (xi == xf || (*xi)[i] != bi[i]) {
-         return std::make_pair(xi, xi);
+      bool operator()(char c, RI1 iter) {
+         return c < iter[pos];
       }
-   }
+   };
 
-   xf = xi + 1;
-   while (xf != suffix.end( ) && *li >= bf - bi) {
-      ++xf, ++li;
+   auto xi = suffix.begin( ), xf = suffix.end( );
+   for (int i = 0; i < bf - bi; ++i) {
+      auto temp = std::equal_range(xi, xf, bi[i], comparador{i});
+      xi = temp.first, xf = temp.second;
    }
-   return std::make_pair(xi, xf);
+   return std::pair(xi, xf);
 }
 
 int main( ) {
@@ -81,6 +81,6 @@ int main( ) {
    std::string b;
    std::cin >> b;
 
-   auto res = substring_search(s.begin( ), s.end( ), suffix, lcp, b.begin( ), b.end( ));
+   auto res = substring_search(suffix, b.begin( ), b.end( ));
    std::cout << res.second - res.first;         // iteradores sobre suffix que denotan todas las cadenas donde b es prefijo
 }

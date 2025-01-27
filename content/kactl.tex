@@ -1,0 +1,21 @@
+\documentclass[9pt,letterpaper, notitlepage]{extreport}
+\usepackage{kactlpkg}
+\kactlcontentdir{content}
+
+\university{UAM}{UAM Azcapotzalco, División de CBI}{logo1}
+\team{Club de Algoritmos\\ UAM Azcapotzalco}{Entrenador: Dr. Rodrigo Alexander Castro Campos}
+\contest{\ }{\today}
+
+\begin{document}
+	\maketeampage
+	\thispagestyle{fancy}
+	% Table of contents, without subsections:
+	\setcounter{tocdepth}{1}
+	\tableofcontents
+	\begin{multicols*}{2}
+
+	\kactlchapter{contest}
+	\kactlexternal
+
+	\end{multicols*}
+\end{document}

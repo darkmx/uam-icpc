@@ -1,0 +1,32 @@
+name: Build LaTeX Document
+
+on:
+  push:
+    branches: [ experiment ]
+  pull_request:
+    branches: [ experiment ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build_latex:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: xu-cheng/texlive-action@v2
+      with:
+        scheme: full
+        run: |
+          apk add make
+          make document_color
+          make document_bw
+
+    - name: Commit and push PDFs
+      run: |
+        git config --global user.name "darkmx"
+        git config --global user.email "rcc.dark@gmail.com"
+        git add notas.pdf notas_bn.pdf
+        git commit -m "Actualización de PDFs: Notas a color y B/N"
+        git push origin experiment

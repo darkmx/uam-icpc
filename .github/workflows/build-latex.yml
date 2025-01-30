@@ -19,9 +19,9 @@ jobs:
       with:
         scheme: full
         run: |
-          apk add make
-          make document_color
-          make document_bw
+          apk add make gcc
+          make document_color && make document_color
+          make document_bw && make document_bw
 
     - name: Commit and push PDFs
       run: |

@@ -11,6 +11,9 @@ document_bw: | build
 
 clean:
 	$(RM) -r build/
+	$(RM) -r _minted-kactl/
+	$(RM) notas.pdf
+	$(RM) notas_bn.pdf
 
 .PHONY: document_color document_bw clean
 

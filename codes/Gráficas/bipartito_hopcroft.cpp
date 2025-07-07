@@ -35,14 +35,16 @@ private:
       std::deque<int> cola(adyacencia.size( ));
       std::iota(cola.begin( ), cola.end( ), 0);
       for (int j = 0; j < match_b.size( ); ++j) {
-         if (int i = match_b[j]; i != -1) {
+         int i = match_b[j];
+         if (i != -1) {
             cola[i] = capas[i] = -1;
          }
       }
 
       cola.erase(std::remove(cola.begin( ), cola.end( ), -1), cola.end( ));
       for (; !cola.empty( ); cola.pop_front( )) {
-         for (int i = cola.front( ); int j : adyacencia[i]) {
+         int i = cola.front( );
+         for (int j : adyacencia[i]) {
             if (match_b[j] != -1 && capas[match_b[j]] == -1) {
                capas[match_b[j]] = capas[i] + 1;
                cola.push_back(match_b[j]);
@@ -57,7 +59,7 @@ private:
       if (!visto_a[i]) {
          visto_a[i] = true;
          for (int j : adyacencia[i]) {
-            if (match_b[j] == -1 || capas[i] < capas[match_b[j]] && aumenta(match_b[j], visto_a, capas)) {
+            if (match_b[j] == -1 || capas[i] + 1 == capas[match_b[j]] && aumenta(match_b[j], visto_a, capas)) {
                match_b[j] = i;
                return true;
             }

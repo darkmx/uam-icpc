@@ -1,3 +1,5 @@
 /build/
 /_minted-*/
 header.tmp
+*.o
+*.exe

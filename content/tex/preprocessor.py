@@ -29,9 +29,27 @@ def codeescape(input):
     #input = input.replace('}', r'\}')
     #input = input.replace('^', r'\ensuremath{\hat{\;}}')
     #input = escape(input)
-    input = input.replace('\n', r'|\mylinebreak|')
-    input = input.replace(r'\t ', r'|\hspace{9pt}|')
-    return input
+    input = input.replace('\n', r'\mylinebreak')
+    input = input.replace(r'\t', r'\mytab')
+    input = input.replace('%', r'`\%`')
+    input = input.replace('#', r'`\#`')
+
+    stack = []
+    mismatched = {}
+
+    for i, char in enumerate(input):
+        if char == '{':
+            stack.append(i)
+        elif char == '}':
+            if stack:
+                stack.pop()
+            else:
+                mismatched[i] = r'`\textbraceright`'
+
+    for i in stack:
+        mismatched[i] = r'`\textbraceleft`'
+
+    return "".join(mismatched.get(i, char) for i, char in enumerate(input))
 
 def ordoescape(input, esc=True):
     if esc:
@@ -177,7 +195,14 @@ def processwithcomments(caption, instream, outstream, listingslang):
         if commands.get("Descripción"):
             print(r"\defdescription{%s}" % escape(commands["Descripción"]), file=outstream)
         if commands.get("Uso"):
-            print(r"\defusage{%s}" % codeescape(commands["Uso"]), file=outstream)
+            usage = []
+            code = re.split(r'((?:\n|\\t)+)', commands["Uso"])
+            for index, string in enumerate(code):
+                if index % 2 == 1:
+                    usage.append(codeescape(string))
+                elif string:
+                    usage.append(r"\mintinline{cpp}@%s@" % codeescape(string.strip()))
+            print(r"\defusage{%s}" % (" ".join(usage)), file=outstream)
         if commands.get("Complejidad"):
             print(r"\deftime{%s}" % ordoescape(commands["Complejidad"]), file=outstream)
         if commands.get("Memoria"):

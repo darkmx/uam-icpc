@@ -1,11 +1,9 @@
 /**
  * Nombre: Circuito euleriano
  * Autor: rcc
- * Descripción: .
- * Complejidad: .
- * Uso:
- *  int res = exampleFunction1(mice, cats, catsCount);
- *  int random = exampleFunction2();
+ * Descripción: Un circuito euleriano es un camino que recorre cada arista de un
+ *              grafo exactamente una vez, y el camino termina en el vértice \textit{inicial}.
+ * Complejidad: $O(n + m)$
  */
 #include <algorithm>
 #include <iomanip>

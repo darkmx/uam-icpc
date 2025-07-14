@@ -1,11 +1,9 @@
 /**
  * Nombre: Árbol de segmentos persistente
  * Autor: rcc
- * Descripción: .
- * Complejidad: .
- * Uso:
- *  int res = exampleFunction1(mice, cats, catsCount);
- *  int random = exampleFunction2();
+ * Descripción: Árbol de segmentos que permite consultar cualquier versión
+ *              anterior del árbol después de cada modificación.
+ * Complejidad: $O(\log n)$
  */
 #include <algorithm>
 #include <deque>

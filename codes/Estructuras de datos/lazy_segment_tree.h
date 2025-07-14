@@ -1,11 +1,9 @@
 /**
  * Nombre: Árbol de segmentos perezoso
  * Autor: rcc
- * Descripción: .
- * Complejidad: .
- * Uso:
- *  int res = exampleFunction1(mice, cats, catsCount);
- *  int random = exampleFunction2();
+ * Descripción: Árbol de segmentos con capacidad para modificar valores de
+ *              intervalos grandes y calcular consultas de intervalos.
+ * Complejidad: $O(\log n)$
  */
 #include <algorithm>
 #include <climits>

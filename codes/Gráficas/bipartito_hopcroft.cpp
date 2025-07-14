@@ -1,3 +1,13 @@
+/**
+ * Nombre: Algoritmo de Hopcroft-Karp
+ * Autor: rcc
+ * Descripción: Algoritmo rápido de acoplamiento bipartito. Devuelve el tamaño del acoplamiento. \textit{match\_b[j]} será el vértice del lado izquierdo que quedó emparejado con el vértice \textit{j} del lado derecho, o \textit{-1} si no está emparejado.
+ * Complejidad: $O(\sqrt{n} m)$
+ * Uso:
+ *   bipartito_hopcroft bp(|A|, |B|);
+ *   bp.agrega_arco(u, v); // por cada arista ($u \in A$, $v \in B$)
+ *   int tam = bp.calcula_acoplamiento();
+ */
 #include <algorithm>
 #include <deque>
 #include <iostream>

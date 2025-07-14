@@ -2,6 +2,7 @@
 % License: CC0
 \ProvidesPackage{kactlpkg}
 
+\usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}             % Encoding UTF-8
 \usepackage[letterpaper,hmargin={0.5cm,0.5cm},vmargin={1.0cm,0.4cm}]{geometry}
 \usepackage{multicol}                   % Split page in multiple columns
@@ -279,7 +280,7 @@
 
 \newboolean{hasusage}
 \newcommand{\defusage}[1]{
-	\def\@defusage{\mintinline[escapeinside=||,texcl]{cpp}{#1}}
+	\def\@defusage{#1}
 	\setboolean{hasusage}{true}
 }
 \defusage{}
@@ -356,7 +357,13 @@
 	\caption{#1\label{code:#2}}
 }{}
 
-\newcommand{\mylinebreak}{\vspace{-3pt}\par\noindent\hspace{3em}}
+\setmintedinline{
+	texcomments,
+	escapeinside=``
+}
+
+\newcommand{\mylinebreak}{\vspace{-3pt}\par\noindent\hspace{21pt}}
+\newcommand{\mytab}{\hspace{9pt}}
 
 \newcommand{\bigo}[1] {\ensuremath{\mathcal{O} \left( #1 \right)}}
 

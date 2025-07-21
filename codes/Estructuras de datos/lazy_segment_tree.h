@@ -30,21 +30,13 @@ template<typename T, typename U, typename FQ = const T&(*)(const T&, const T&), 
 class lazy_segment_tree {
 public:
    lazy_segment_tree(std::vector<T>&& init, T v0, U u0, FQ fq, FU fu, FP fp)
-   : neutro(std::move(v0)), neutro_update(std::move(u0)), funcion(std::move(fq)), funcion_update(std::move(fu)), funcion_propagar(std::move(fp)) {
-      pisos.emplace_back(init.size( ));
-      for (int i = 0; i < init.size( ); ++i) {
-         pisos.back( )[i] = { std::move(init[i]), neutro_update };
-      }
-      while (pisos.back( ).size( ) > 1) {
-         pisos.emplace_back(pisos.back( ).size( ) / 2);
-         for (int i = 0, t = pisos.size( ) - 2; i < pisos[t].size( ) / 2; ++i) {
-            pisos.back( )[i] = { funcion(pisos[t][2 * i].first, pisos[t][2 * i + 1].first), neutro_update };
-         }
-      }
+   : mem(init.size( ) * 2), neutro(std::move(v0)), neutro_update(std::move(u0)), funcion(std::move(fq)), funcion_update(std::move(fu)), funcion_propagar(std::move(fp)) {
+      auto p = init.data( );
+      construye(0, 0, size( ), p);
    }
 
    int size( ) const {
-      return pisos[0].size( );
+      return mem.size( ) / 2;
    }
 
    T operator[](int i) const {
@@ -53,41 +45,47 @@ public:
 
    T query(int ini, int fin) const {
       T res = neutro;
-      visit(pisos.size( ) - 1, 0, ini, fin, [&](const std::pair<T, U>& nodo, int tam) {
-         res = funcion(res, nodo.first);
+      visit(0, ini, fin, 0, size( ), [&](const std::pair<T, U>& actual, int cubiertos) {
+         res = funcion(res, actual.first);
       });
       return res;
    }
 
-   void update_with(int ini, int fin, const U& cambio) {
-      visit(pisos.size( ) - 1, 0, ini, fin, [&](std::pair<T, U>& nodo, int cubiertos) {
-         actualiza(nodo, cubiertos, cambio);
+   void update_with(int ini, int fin, const U& v) {
+      visit(0, ini, fin, 0, size( ), [&](std::pair<T, U>& actual, int cubiertos) {
+         actualiza(actual, cubiertos, v);
+      });
+   }
+
+   template<typename V>
+   void visit(int ini, int fin, V&& vis) const {
+      visit(0, ini, fin, 0, size( ), [&](const std::pair<T, U>& actual, int cubiertos) {
+         vis(actual.first, cubiertos);
       });
    }
 
 private:
+   const std::pair<T, U>& construye(int i, int ini, int fin, T*& p) {
+      if (fin - ini == 1) {
+         return mem[i] = { std::move(*p++), neutro_update };
+      } else {
+         int tam = fin - ini, mitad = ini + tam / 2, izq = i + 1, der = i + 2 * (tam / 2);
+         return mem[i] = { funcion(construye(izq, ini, mitad, p).first, construye(der, mitad, fin, p).first), neutro_update };
+      }
+   }
+
    template<typename V>
-   void visit(int p, int i, int ini, int fin, V&& vis) const {
-      while (i >= pisos[p].size( )) {
-         p -= 1, i *= 2;
+   void visit(int i, int qi, int qf, int ini, int fin, V&& vis) const {
+      if (qi == ini && qf == fin) {
+         vis(mem[i], fin - ini);
+      } else if (qi < qf) {
+         int tam = fin - ini, mitad = ini + tam / 2, izq = i + 1, der = i + 2 * (tam / 2);
+         actualiza(mem[izq], tam / 2, mem[i].second);
+         actualiza(mem[der], tam - tam / 2, mem[i].second);
+         visit(izq, qi, std::min(qf, mitad), ini, mitad, vis);
+         visit(der, std::max(qi, mitad), qf, mitad, fin, vis);
+         mem[i] = { funcion(mem[izq].first, mem[der].first), neutro_update };
       }
-
-      int ini_actual = i * (1 << p), fin_actual = ini_actual + (1 << p);
-      if (fin > fin_actual) {
-         visit(p - 1, 2 * i + 2, std::max(fin_actual, ini), fin, vis);
-         fin = fin_actual;
-      }
-      if (ini == ini_actual && fin == fin_actual) {;
-         return vis(pisos[p][i], 1 << p);
-      } else if (ini >= fin) {
-         return;
-      }
-
-      actualiza(pisos[p - 1][2 * i + 0], 1 << (p - 1), pisos[p][i].second);
-      actualiza(pisos[p - 1][2 * i + 1], 1 << (p - 1), pisos[p][i].second);
-      visit(p - 1, 2 * i + 0, ini, std::min(fin, ini_actual + (1 << (p - 1))), vis);
-      visit(p - 1, 2 * i + 1, std::max(ini, fin_actual - (1 << (p - 1))), fin, vis);
-      pisos[p][i] = { funcion(pisos[p - 1][2 * i].first, pisos[p - 1][2 * i + 1].first), neutro_update };
    }
 
    void actualiza(std::pair<T, U>& actual, int cubiertos, const U& cambio) const {
@@ -96,7 +94,7 @@ private:
       }
    }
 
-   mutable std::vector<std::vector<std::pair<T, U>>> pisos;
+   mutable std::vector<std::pair<T, U>> mem;
    T neutro;
    U neutro_update;
    FQ funcion;

@@ -4,6 +4,11 @@
  * Descripción: Árbol de segmentos que permite consultar cualquier versión
  *              anterior del árbol después de cada modificación.
  * Complejidad: $O(\log n)$
+ * Uso:
+ *  auto s = persistent_segment_tree(std::move(vector_inicial), 0, std::plus( ));
+ *  int suma1 = s.query(5, 10);
+ *  auto s2 = s.replace(i, rand( ));
+ *  int suma2 = s.query(5, 10);
  */
 #include <algorithm>
 #include <deque>
@@ -14,77 +19,79 @@
 
 template<typename T, typename F = const T&(*)(const T&, const T&)>
 class persistent_segment_tree {
+public:
    struct nodo {
       T valor;
       nodo *izq, *der;
    };
 
-public:
-   template<typename I>
-   persistent_segment_tree(T n, F f, I&& entrada, int t)
-   : mem_(std::make_shared<std::deque<nodo>>( )), neutro_(std::move(n)), funcion_(std::move(f)), tam_(t), raiz_(replace(nullptr, 0, tam_, 0, tam_, entrada)) {
-   }
-
-   template<typename RI>
-   persistent_segment_tree(T n, F f, RI ini, RI fin)
-   : persistent_segment_tree(std::move(n), std::move(f), [&]( ) { return *ini++; }, fin - ini) {
+   persistent_segment_tree(std::vector<T>&& init, T v0, F f)
+   : mem(std::make_shared<std::deque<nodo>>( )), neutro(std::move(v0)), funcion(std::move(f)), tam(init.size( )) {
+      auto p = init.data( );
+      raiz = replace(nullptr, 0, size( ), 0, size( ), [&]{
+         return std::move(*p++);
+      });
    }
 
    int size( ) const {
-      return tam_;
+      return tam;
+   }
+
+   const nodo* root( ) const {
+      return raiz;
    }
 
    const T& operator[](int i) const {
       const T* res;
-      visit(i, i + 1, [&](const T& actual) {
-         res = &actual;
+      visit(i, i + 1, [&](const T& valor) {
+         res = &valor;
       });
       return *res;
    }
 
    T query(int ini, int fin) const {
-      T res = neutro_;
-      visit(ini, fin, [&](const T& actual) {
-         res = funcion_(res, actual);
+      T res = neutro;
+      visit(ini, fin, [&](const T& valor) {
+         res = funcion(res, valor);
       });
       return res;
    }
 
    persistent_segment_tree replace(int i, T v) {
-      return { neutro_, funcion_, tam_, replace(raiz_, i, i + 1, 0, tam_, [&]( ) { return std::move(v); }), mem_ };
+      return { mem, neutro, funcion, size( ), replace(raiz, i, i + 1, 0, size( ), [&]{
+         return std::move(v);
+      }) };
    }
 
    template<typename V>
    void visit(int ini, int fin, V&& vis) const {
-      return visit(raiz_, ini, fin, 0, tam_, vis);
+      return visit(raiz, ini, fin, 0, size( ), vis);
    }
 
 private:
-   persistent_segment_tree(T n, F f, int t, nodo* r, std::shared_ptr<std::deque<nodo>>& m)
-   : mem_(m), neutro_(std::move(n)), funcion_(std::move(f)), raiz_(r), tam_(t) {
+   persistent_segment_tree(std::shared_ptr<std::deque<nodo>>& m, T v0, F f, int t, nodo* r)
+   : mem(m), neutro(std::move(v0)), funcion(std::move(f)), tam(t), raiz(r) {
    }
 
    template<typename I>
    nodo* replace(nodo* p, int qi, int qf, int ini, int fin, I&& entrada) {
-      if (ini == fin || qi >= qf) {
+      if (qi >= qf) {
          return p;
       } else if (fin - ini == 1) {
          return crea(entrada( ));
       } else {
-         int mitad = ini + (fin - ini) / 2, tam = fin - ini;
+         int mitad = ini + (fin - ini) / 2;
          auto izq = replace((p == nullptr ? nullptr : p->izq), qi, std::min(qf, mitad), ini, mitad, entrada);
          auto der = replace((p == nullptr ? nullptr : p->der), std::max(qi, mitad), qf, mitad, fin, entrada);
-         return crea(funcion_(izq->valor, der->valor), izq, der);
+         return crea(funcion(izq->valor, der->valor), izq, der);
       }
    }
 
    template<typename V>
    void visit(const nodo* p, int qi, int qf, int ini, int fin, V& vis) const {
-      if (qi >= qf) {
-         return;
-      } else if (qi == ini && qf == fin) {
+      if (qi == ini && qf == fin) {
          vis(p->valor);
-      } else {
+      } else if (qi < qf) {
          int mitad = ini + (fin - ini) / 2;
          visit(p->izq, qi, std::min(qf, mitad), ini, mitad, vis);
          visit(p->der, std::max(qi, mitad), qf, mitad, fin, vis);
@@ -93,14 +100,14 @@ private:
 
    template<typename... P>
    nodo* crea(P&&... v) {
-      return &*mem_->insert(mem_->end( ), nodo{std::forward<P>(v)...});
+      return &*mem->insert(mem->end( ), nodo{std::forward<P>(v)...});
    }
 
-   std::shared_ptr<std::deque<nodo>> mem_;
-   T neutro_;
-   F funcion_;
-   int tam_;
-   nodo* raiz_;
+   std::shared_ptr<std::deque<nodo>> mem;
+   T neutro;
+   F funcion;
+   int tam;
+   nodo* raiz;
 };
 
 // < C++17 checar segment_tree

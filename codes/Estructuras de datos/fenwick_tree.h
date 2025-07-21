@@ -4,7 +4,7 @@
  * Descripción: Calcula las sumas parciales \(a[i] + a[i+1] + \ldots + a[f - 1]\), y actualiza o reemplaza elementos individuales \(a[i]\).
  * Complejidad: $O(\log n)$
  */
-#include <bit>             // sólo si se necesita lower_bound
+#include <bit>             // sólo si se necesita min_prefix
 #include <vector>
 
 template<typename T>

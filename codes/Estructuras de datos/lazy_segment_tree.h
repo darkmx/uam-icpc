@@ -4,6 +4,18 @@
  * Descripción: Árbol de segmentos con capacidad para modificar valores de
  *              intervalos grandes y calcular consultas de intervalos.
  * Complejidad: $O(\log n)$
+ * Uso:
+ *  auto s = lazy_segment_tree(std::move(vector_inicial), 0, 0, std::plus( ),
+ *   [](int& valor, int cubiertos, int cambio) {
+ *      valor += cambio * cubiertos;
+ *      return true;
+ *   },
+ *   [](int cambio1, int cambio2) {
+ *      return cambio1 + cambio2;
+ *   });
+ *  int suma1 = s.query(5, 10);
+ *  s.arbol.update_with(2, 8, +1);
+ *  int suma2 = s.query(5, 10);
  */
 #include <algorithm>
 #include <climits>
@@ -14,27 +26,25 @@
 #include <utility>
 #include <vector>
 
-template<typename T, typename U, typename F1 = const T&(*)(const T&, const T&), typename F2 = bool(*)(T&, int n, const U&), typename F3 = const U&(*)(const U&, const U&)>
+template<typename T, typename U, typename FQ = const T&(*)(const T&, const T&), typename FU = bool(*)(T&, int, const U&), typename FP = const U&(*)(const U&, const U&)>
 class lazy_segment_tree {
-   struct nodo {
-      T valor;
-      U lazy;
-   };
-
 public:
-   template<typename I>
-   lazy_segment_tree(T n1, U n2, F1 f1, F2 f2, F3 f3, I&& entrada, int t)
-   : mem_(2 * t), neutro1_(std::move(n1)), neutro2_(std::move(n2)), funcion1_(std::move(f1)), funcion2_(std::move(f2)), funcion3_(std::move(f3)), tam_(t) {
-      construye(0, 0, t, entrada);
-   }
-
-   template<typename RI>
-   lazy_segment_tree(T n1, U n2, F1 f1, F2 f2, F3 f3, RI ini, RI fin)
-   : lazy_segment_tree(std::move(n1), std::move(n2), std::move(f1), std::move(f2), std::move(f3), [&]( ) { return *ini++; }, fin - ini) {
+   lazy_segment_tree(std::vector<T>&& init, T v0, U u0, FQ fq, FU fu, FP fp)
+   : neutro(std::move(v0)), neutro_update(std::move(u0)), funcion(std::move(fq)), funcion_update(std::move(fu)), funcion_propagar(std::move(fp)) {
+      pisos.emplace_back(init.size( ));
+      for (int i = 0; i < init.size( ); ++i) {
+         pisos.back( )[i] = { std::move(init[i]), neutro_update };
+      }
+      while (pisos.back( ).size( ) > 1) {
+         pisos.emplace_back(pisos.back( ).size( ) / 2);
+         for (int i = 0, t = pisos.size( ) - 2; i < pisos[t].size( ) / 2; ++i) {
+            pisos.back( )[i] = { funcion(pisos[t][2 * i].first, pisos[t][2 * i + 1].first), neutro_update };
+         }
+      }
    }
 
    int size( ) const {
-      return tam_;
+      return pisos[0].size( );
    }
 
    T operator[](int i) const {
@@ -42,74 +52,56 @@ public:
    }
 
    T query(int ini, int fin) const {
-      T res = neutro1_;
-      visit(0, ini, fin, 0, tam_, [&](const nodo& actual, int tam) {
-         res = funcion1_(res, actual.valor);
+      T res = neutro;
+      visit(pisos.size( ) - 1, 0, ini, fin, [&](const std::pair<T, U>& nodo, int tam) {
+         res = funcion(res, nodo.first);
       });
       return res;
    }
 
-   void modify_apply(int ini, int fin, const U& v) {
-      visit(0, ini, fin, 0, tam_, [&](nodo& actual, int tam) {
-         modifica(actual, tam, v);
-      }, true);
-   }
-
-   template<typename V>
-   void visit(int ini, int fin, V&& vis) const {
-      visit(0, ini, fin, 0, tam_, [&](const nodo& actual, int tam) {
-         vis(actual.valor);
+   void update_with(int ini, int fin, const U& cambio) {
+      visit(pisos.size( ) - 1, 0, ini, fin, [&](std::pair<T, U>& nodo, int cubiertos) {
+         actualiza(nodo, cubiertos, cambio);
       });
    }
 
 private:
-   void modifica(nodo& actual, int tam, const U& v) const {
-      if (v != neutro2_ && funcion2_(actual.valor, tam, v)) {
-         actual.lazy = (actual.lazy != neutro2_ ? funcion3_(actual.lazy, v) : v);
-      }
-   }
-
-   template<typename I>
-   void construye(int i, int ini, int fin, I& entrada) {
-      if (ini == fin) {
-         return;
-      } else if (fin - ini == 1) {
-         mem_[i] = { entrada( ), neutro2_ };
-      } else {
-         int tam = fin - ini, mitad = ini + tam / 2, izq = i + 1, der = i + 2 * (tam / 2);
-         construye(izq, ini, mitad, entrada);
-         construye(der, mitad, fin, entrada);
-         mem_[i] = { funcion1_(mem_[izq].valor, mem_[der].valor), neutro2_ };
-      }
-   }
-
    template<typename V>
-   void visit(int i, int qi, int qf, int ini, int fin, V&& vis, bool actualizar = false) const {
-      if (qi >= qf) {
-         return;
-      } else if (qi == ini && qf == fin) {
-         vis(mem_[i], fin - ini);
-      } else {
-         int tam = fin - ini, mitad = ini + tam / 2, izq = i + 1, der = i + 2 * (tam / 2);
-         modifica(mem_[izq], tam / 2, mem_[i].lazy);
-         modifica(mem_[der], tam - tam / 2, mem_[i].lazy);
-         mem_[i].lazy = neutro2_;
+   void visit(int p, int i, int ini, int fin, V&& vis) const {
+      while (i >= pisos[p].size( )) {
+         p -= 1, i *= 2;
+      }
 
-         visit(izq, qi, std::min(qf, mitad), ini, mitad, vis, actualizar);
-         visit(der, std::max(qi, mitad), qf, mitad, fin, vis, actualizar);
-         if (actualizar) {
-            mem_[i].valor = funcion1_(mem_[izq].valor, mem_[der].valor);
-         }
+      int ini_actual = i * (1 << p), fin_actual = ini_actual + (1 << p);
+      if (fin > fin_actual) {
+         visit(p - 1, 2 * i + 2, std::max(fin_actual, ini), fin, vis);
+         fin = fin_actual;
+      }
+      if (ini == ini_actual && fin == fin_actual) {;
+         return vis(pisos[p][i], 1 << p);
+      } else if (ini >= fin) {
+         return;
+      }
+
+      actualiza(pisos[p - 1][2 * i + 0], 1 << (p - 1), pisos[p][i].second);
+      actualiza(pisos[p - 1][2 * i + 1], 1 << (p - 1), pisos[p][i].second);
+      visit(p - 1, 2 * i + 0, ini, std::min(fin, ini_actual + (1 << (p - 1))), vis);
+      visit(p - 1, 2 * i + 1, std::max(ini, fin_actual - (1 << (p - 1))), fin, vis);
+      pisos[p][i] = { funcion(pisos[p - 1][2 * i].first, pisos[p - 1][2 * i + 1].first), neutro_update };
+   }
+
+   void actualiza(std::pair<T, U>& actual, int cubiertos, const U& cambio) const {
+      if (cambio != neutro_update && funcion_update(actual.first, cubiertos, cambio)) {
+         actual.second = (actual.second != neutro_update ? funcion_propagar(actual.second, cambio) : cambio);
       }
    }
 
-   mutable std::vector<nodo> mem_;
-   T neutro1_;
-   U neutro2_;
-   F1 funcion1_;
-   F2 funcion2_;
-   F3 funcion3_;
-   int tam_;
+   mutable std::vector<std::vector<std::pair<T, U>>> pisos;
+   T neutro;
+   U neutro_update;
+   FQ funcion;
+   FU funcion_update;
+   FP funcion_propagar;
 };
 
 // < C++17 checar segment_tree

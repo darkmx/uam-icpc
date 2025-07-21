@@ -5,9 +5,10 @@
  *              de elementos y calcular el producto de los elementos en un intervalo.
  * Complejidad: $O(\log n)$, se asume que $f$ es de tiempo constante.
  * Uso:
- *  auto s = segment_tree(0, std::plus( )); 
- *  for (int i = 0; i < 50; ++i) s.push_back(i);
- *  int suma = s.query(5, 10); 
+ *  auto s = segment_tree(std::move(vector_inicial), 0, std::plus( ));
+ *  int suma1 = s.query(5, 10);
+ *  s.replace(i, rand( ));
+ *  int suma2 = s.query(5, 10);
  */
 #include <algorithm>
 #include <functional>
@@ -17,75 +18,63 @@
 template<typename T, typename F = const T&(*)(const T&, const T&)>
 class segment_tree {
 public:
-   segment_tree(T n, F f)
-   : pisos_(1), neutro_(std::move(n)), funcion_(std::move(f)) {
+   segment_tree(std::vector<T>&& init, T v0, F f)
+   : neutro(std::move(v0)), funcion(std::move(f)) {
+      pisos.push_back(std::move(init));
+      while (pisos.back( ).size( ) > 1) {
+         pisos.emplace_back(pisos.back( ).size( ) / 2);
+         for (int i = 0, t = pisos.size( ) - 2; i < pisos[t].size( ) / 2; ++i) {
+            pisos.back( )[i] = funcion(pisos[t][2 * i], pisos[t][2 * i + 1]);
+         }
+      }
    }
 
    int size( ) const {
-      return pisos_[0].size( );
+      return pisos[0].size( );
    }
 
    const T& operator[](int i) const {
-      return pisos_[0][i];
-   }
-
-   void push_back(T v) {
-      for (int p = 0;; ++p, pisos_.resize(std::max(p + 1, int(pisos_.size( ))))) {
-         pisos_[p].push_back(std::move(v));
-         if (pisos_[p].size( ) % 2 == 1) {
-            break;
-         }
-         v = funcion_(*(pisos_[p].end( ) - 2), *(pisos_[p].end( ) - 1));
-      }
-   }
-
-   void pop_back( ) {
-      for (int p = 0;; ++p) {
-         pisos_[p].pop_back( );
-         if (pisos_[p].size( ) % 2 == 0) {
-            break;
-         }
-      }
+      return pisos[0][i];
    }
 
    void replace(int i, T v) {
       for (int p = 0;; ++p, i /= 2) {
-         pisos_[p][i] = std::move(v);
-         if (i + (i % 2 == 0) == pisos_[p].size( )) {
+         pisos[p][i] = std::move(v);
+         if (i + (i % 2 == 0) == pisos[p].size( )) {
             break;
          }
-         v = funcion_(pisos_[p][i - i % 2], pisos_[p][i - i % 2 + 1]);
+         v = funcion(pisos[p][i - i % 2], pisos[p][i - i % 2 + 1]);
       }
    }
 
    T query(int ini, int fin) const {
-      T res = neutro_;
-      visit(ini, fin, [&](const T& actual) {
-         res = funcion_(res, actual);
+      T res = neutro;
+      visit(ini, fin, [&](const T& valor) {
+         res = funcion(res, valor);
       });
       return res;
    }
 
    template<typename V>
-   void visit(int ini, int fin, V&& vis) const { // permite recorrer y ver los valores de los nodos más representativos dentro de un rango específico
+   void visit(int ini, int fin, V&& vis) const {   // callback sobre los nodos más representativos dentro de un rango específico
       for (int p = 0; ini != fin; ++p, ini /= 2, fin /= 2) {
          if (ini % 2 == 1) {
-            vis(pisos_[p][ini++]);
+            vis(pisos[p][ini++]);
          }
          if (fin % 2 == 1) {
-            vis(pisos_[p][--fin]);
+            vis(pisos[p][--fin]);
          }
       }
    }
 
 private:
-   std::vector<std::vector<T>> pisos_;
-   F funcion_;
-   T neutro_;
+   std::vector<std::vector<T>> pisos;
+   T neutro;
+   F funcion;
 };
 
 // < C++17
 /*template<typename T, typename F = const T&(*)(const T&, const T&)>
-auto make_segment_tree(T a, F b) {
-   return segment_tree<T, F>(std::move(a), std::move(b));
+auto make_segment_tree(std::vector<T> inicial, T v0, F f) {
+   return segment_tree<T, F>(std::move(inicial), std::move(v0), std::move(f));
 }*/

@@ -1,0 +1,14 @@
+template<int MOD>
+int logaritmo_discreto(modular_int<MOD> a, modular_int<MOD> b) {
+   int n = std::sqrt(MOD) + 1;
+   std::map<int, int> mapa;
+   for (int p = 1; p <= n; ++p) {
+      mapa[potencia(a, p * n)] = p;
+   }
+   for (int q = 0; q <= n; ++q) {
+      if (auto it = mapa.find(potencia(a, q) * b); it != mapa.end( )) {
+         return *it * n - q;
+      }
+   }
+   return -1;
+}

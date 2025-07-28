@@ -1,5 +1,5 @@
 /**
- * Nombre: Flujo máximo
+ * Nombre: Algoritmo de Edmonds-Karp
  * Autor: rcc
  * Descripción: Algoritmo de flujo máximo de una gráfica sin costos de $n$ vértices y $m$ aristas.
  * Complejidad: $O(n m^2)$
@@ -56,11 +56,9 @@ struct edmonds_karp {
 private:
    std::pair<T, std::vector<std::pair<int, int>>> aumenta( ) {
       std::vector<int> anterior(adj.size( ), -1);
-      std::deque<int> cola = { fuente };
       anterior[fuente] = fuente;
-      do {
+      for (std::deque<int> cola = { fuente }; !cola.empty( ); cola.pop_front( )) {
          int i = cola.front( );
-         cola.pop_front( );
          if (i == sumidero) {
             T cuello = std::numeric_limits<T>::max( );
             std::vector<std::pair<int, int>> camino;
@@ -77,7 +75,7 @@ private:
                anterior[j] = i;
             }
          }
-      } while (!cola.empty( ));
+      }
 
       return { 0, { } };
    }

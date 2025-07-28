@@ -1,5 +1,5 @@
 /**
- * Nombre: Flujo máximo
+ * Nombre: Algoritmo de push-relabel
  * Autor: rcc
  * Descripción: Algoritmo rápido de flujo máximo de una gráfica sin costos de $n$ vértices y $m$ aristas.
  * Complejidad: $O(n^2 \sqrt{m})$

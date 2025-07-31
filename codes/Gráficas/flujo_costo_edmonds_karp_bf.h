@@ -8,9 +8,7 @@
  *   edmonds_karp_bf<int> f(n, s, t);
  *   f.agrega_arco(i, j, c);
  *   auto [flujo, costo] = f.flujo_maximo( );
- *   if (f.cap[j][i] != 0) {
- *   	// se enviaron f.cap[j][i] unidades de flujo de i a j
- *   }
+ *   int t = f.flujo_arco(i, j);
  */
 #include <algorithm>
 #include <limits>
@@ -36,6 +34,10 @@ struct edmonds_karp_bf {
          costo[i][j] = d;
          costo[j][i] = -d;
       }
+   }
+
+   int flujo_arco(int i, int j) {
+      return cap[j][i];    // sí, así
    }
 
    std::pair<T, T> flujo_maximo( ) {

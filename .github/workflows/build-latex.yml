@@ -2,9 +2,9 @@ name: Build LaTeX Document
 
 on:
   push:
-    branches: [ experiment ]
+    branches: [ master ]
   pull_request:
-    branches: [ experiment ]
+    branches: [ master ]
   workflow_dispatch:
 
 permissions:
@@ -29,4 +29,4 @@ jobs:
         git config --global user.email "rcc.dark@gmail.com"
         git add notas.pdf notas_bn.pdf
         git commit -m "Actualización de PDFs: Notas a color y B/N"
-        git push origin experiment
+        git push origin master

@@ -2,7 +2,7 @@
  * Nombre: Algoritmo de Edmonds-Karp con costos usando el algoritmo de Johnson
  * Autor: rcc
  * Descripción: Algoritmo de flujo máximo de costo mínimo de una gráfica de $n$ vértices y $m$ aristas.
- * Complejidad: $O(F n \log m)$
+ * Complejidad: $O(F m \log m)$
  * Estado: probado en omegaup.com/arena/problem/Cobertura-minima-de-filas-y-colu
  * Uso:
  *   edmonds_karp_bf<int, int> f(n, s, t);

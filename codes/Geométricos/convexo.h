@@ -13,14 +13,20 @@ Los puntos en el borde del cerco entre dos puntos no se consideran parte del cer
 \end{minipage}
  * Complejidad: $O(n\log n)$
  * Uso:
- *  std::sort(puntos.begin( ), puntos.end( )); 
- *  auto cerco = cerco_convexo(puntos.begin( ), puntos.end( )); 
+ *  std::sort(puntos.begin( ), puntos.end( ));
+ *  auto cerco = cerco_convexo(puntos.begin( ), puntos.end( ));
  */
 #include <algorithm>
-#include <cmath>
 #include <iterator>
 #include <utility>
 #include <vector>
+
+struct punto {
+   double x, y;      // si no necesitan doubles, pasarlos a int porque es más rápido
+   bool operator<(const punto& p) const {
+      return std::pair(x, y) < std::pair(p.x, p.y);
+   }
+};
 
 auto producto_cruz(const auto& a, const auto& b, const auto& c) {
    return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
@@ -40,31 +46,12 @@ auto cerco_parcial(RI1 ai, RI1 af, RI2 bi) {
 template<typename RI>
 auto cerco_convexo(RI ai, RI af) {
    if (af - ai <= 2) {
-      return std::vector<typename std::iterator_traits<RI>::value_type>(ai, af);
+      return std::vector<std::iter_value_t<RI>>(ai, af);
+   } else {
+      std::vector<std::iter_value_t<RI>> res(2 * (af - ai));
+      auto it1 = cerco_parcial(ai, af, res.begin( )) - 1;
+      auto it2 = cerco_parcial(std::reverse_iterator(af), std::reverse_iterator(ai), it1) - 1;
+      res.resize(it2 - res.begin( ));
+      return res;
    }
-   std::vector<typename std::iterator_traits<RI>::value_type> res(2 * (af - ai));
-   auto iter1 = cerco_parcial(ai, af, res.begin( )) - 1;
-   auto iter2 = cerco_parcial(std::make_reverse_iterator(af), std::make_reverse_iterator(ai), iter1) - 1;
-   res.resize(iter2 - res.begin( ));
-   return res;
 }
-
-auto distancia(const auto& a, const auto& b) {
-   return std::hypot(a.x - b.x, a.y - b.y);  // std::hypot puede ser más lento que hacerlo manualmente con std::sqrt
-}
-
-template<typename T>
-auto perimetro(const std::vector<T>& puntos) {
-   double res = 0;
-   for (int i = 0; i < puntos.size( ); ++i) {
-      res += distancia(puntos[i], puntos[(i + 1) % puntos.size( )]);
-   }
-   return res;
-}
-
-struct punto {
-   double x, y;      // si no necesitan doubles, pasarlos a int porque es más rápido
-   bool operator<(const punto& p) const {
-      return std::pair(x, y) < std::pair(p.x, p.y);
-   }
-};

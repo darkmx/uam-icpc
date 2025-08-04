@@ -5,7 +5,7 @@
  * Complejidad: $O(n^2 \sqrt{m})$
  * Estado: probado en spoj.com/problems/FASTFLOW
  * Uso:
- *   push_relabel f(n, s, t);
+ *   push_relabel<int> f(n, s, t);
  *   f.agrega_arco(i, j, c);
  *   int flujo = f.flujo_maximo( );
  *   int t = f.flujo_arco(i, j);
@@ -14,22 +14,22 @@
 #include <limits>
 #include <vector>
 
-template<typename T>
+template<typename C>
 struct push_relabel {
    int fuente, sumidero;
    std::vector<std::vector<int>> adj;
-   std::vector<std::vector<T>> cap;
-   std::vector<T> exceso;
+   std::vector<std::vector<C>> cap;
+   std::vector<C> exceso;
    std::vector<int> altura;
 
    push_relabel(int n, int f, int s)
-   : fuente(f), sumidero(s), adj(n), cap(n, std::vector<T>(n, 0)),
+   : fuente(f), sumidero(s), adj(n), cap(n, std::vector<C>(n, 0)),
      exceso(n, 0), altura(n, 0) {
-      exceso[fuente] = std::numeric_limits<T>::max( );
+      exceso[fuente] = std::numeric_limits<C>::max( );
       altura[fuente] = n;
    }
 
-   void agrega_arco(int i, int j, T c) {
+   void agrega_arco(int i, int j, C c) {
       if (i != j && c != 0) {
          if (cap[i][j] == 0 && cap[j][i] == 0) {
             adj[i].push_back(j);
@@ -39,11 +39,11 @@ struct push_relabel {
       }
    }
 
-   int flujo_arco(int i, int j) {
+   C flujo_arco(int i, int j) {
       return cap[j][i];    // sí, así
    }
 
-   T flujo_maximo( ) {
+   C flujo_maximo( ) {
       std::vector<int> por_altura[2 * adj.size( ) + 1];
       for (int j : adj[fuente]) {
          push(fuente, j, por_altura);
@@ -74,7 +74,7 @@ private:
    }
 
    void push(int i, int j, std::vector<int> por_altura[]) {
-      T flujo = std::min(exceso[i], cap[i][j]);
+      C flujo = std::min(exceso[i], cap[i][j]);
       if (flujo != 0) {
          if (exceso[j] == 0 && j != fuente && j != sumidero) {
             por_altura[altura[j]].push_back(j);

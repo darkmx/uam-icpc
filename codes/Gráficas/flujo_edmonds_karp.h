@@ -5,7 +5,7 @@
  * Complejidad: $O(n m^2)$
  * Estado: probado en omegaup.com/arena/problem/Un-orden-para-todos
  * Uso:
- *   edmonds_karp f(n, s, t);
+ *   edmonds_karp<int> f(n, s, t);
  *   f.agrega_arco(i, j, c);
  *   int flujo = f.flujo_maximo( );
  *   int t = f.flujo_arco(i, j);
@@ -16,17 +16,17 @@
 #include <utility>
 #include <vector>
 
-template<typename T>
+template<typename C>
 struct edmonds_karp {
    int fuente, sumidero;
    std::vector<std::vector<int>> adj;
-   std::vector<std::vector<T>> cap;
+   std::vector<std::vector<C>> cap;
 
    edmonds_karp(int n, int f, int s)
-   : fuente(f), sumidero(s), adj(n), cap(n, std::vector<T>(n)) {
+   : fuente(f), sumidero(s), adj(n), cap(n, std::vector<C>(n)) {
    }
 
-   void agrega_arco(int i, int j, T c) {
+   void agrega_arco(int i, int j, C c) {
       if (i != j && c != 0) {
          if (cap[i][j] == 0 && cap[j][i] == 0) {
             adj[i].push_back(j);
@@ -36,12 +36,12 @@ struct edmonds_karp {
       }
    }
 
-   int flujo_arco(int i, int j) {
+   C flujo_arco(int i, int j) {
       return cap[j][i];    // sí, así
    }
 
-   T flujo_maximo( ) {
-      T res = 0;
+   C flujo_maximo( ) {
+      C res = 0;
       for (;;) {
          auto [delta, camino] = aumenta( );
          if (delta == 0) {
@@ -56,19 +56,18 @@ struct edmonds_karp {
    }
 
 private:
-   std::pair<T, std::vector<std::pair<int, int>>> aumenta( ) {
+   std::pair<C, std::vector<std::pair<int, int>>> aumenta( ) {
       std::vector<int> anterior(adj.size( ), -1);
       anterior[fuente] = fuente;
       for (std::deque<int> cola = { fuente }; !cola.empty( ); cola.pop_front( )) {
          int i = cola.front( );
          if (i == sumidero) {
-            T cuello = std::numeric_limits<T>::max( );
+            C cuello = std::numeric_limits<C>::max( );
             std::vector<std::pair<int, int>> camino;
-            do {
+            for (int i = sumidero; i != fuente; i = anterior[i]) {
                camino.emplace_back(anterior[i], i);
                cuello = std::min(cuello, cap[anterior[i]][i]);
-               i = anterior[i];
-            } while (i != fuente);
+            }
             return { cuello, camino };
          }
          for (int j : adj[i]) {

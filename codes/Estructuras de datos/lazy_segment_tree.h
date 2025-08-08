@@ -70,7 +70,8 @@ private:
          return mem[i] = { std::move(*p++), neutro_update };
       } else {
          int tam = fin - ini, mitad = ini + tam / 2, izq = i + 1, der = i + 2 * (tam / 2);
-         return mem[i] = { funcion(construye(izq, ini, mitad, p).first, construye(der, mitad, fin, p).first), neutro_update };
+         auto t1 = construye(izq, ini, mitad, p).first, t2 = construye(der, mitad, fin, p).first;
+         return mem[i] = { funcion(t1, t2), neutro_update };
       }
    }
 

@@ -16,7 +16,7 @@
 namespace gnu = __gnu_pbds;
 
 template<typename T>
-using statistics_set = __gnu_pbds::tree<T, gnu::null_type, std::less<T>, gnu::rb_tree_tag, gnu::tree_order_statistics_node_update>;
+using statistics_set = gnu::tree<T, gnu::null_type, std::less<T>, gnu::rb_tree_tag, gnu::tree_order_statistics_node_update>;
 
 template<typename T, typename V>
-using statistics_map = __gnu_pbds::tree<T, V, std::less<T>, gnu::rb_tree_tag, gnu::tree_order_statistics_node_update>;
+using statistics_map = gnu::tree<T, V, std::less<T>, gnu::rb_tree_tag, gnu::tree_order_statistics_node_update>;

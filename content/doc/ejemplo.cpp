@@ -27,6 +27,9 @@
 /// Se añadirá la referencia y se quitará el include
 #include "referencia.h"
 
+/// Se mantendrá el include
+#include <ponchito.hpp> /// keep-include
+
 struct EstructuraEjemplo {
    /// Se eliminará este comentario.
    long long costo; /// Este también

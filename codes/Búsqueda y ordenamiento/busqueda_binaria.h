@@ -9,17 +9,17 @@
  *  \t return valor / 500 != 0;
  *  };
  */
+#include <numeric>
 
 template<typename T, typename F>
 T busqueda_binaria(T ini, T fin, F pred) {
-   auto res = fin;
    while (ini != fin) {
-      auto mitad = ini + (fin - ini) / 2;
+      auto mitad = std::midpoint(ini, fin);
       if (pred(mitad)) {
-         res = mitad, fin = mitad;
+         fin = mitad;
       } else {
          ini = mitad + 1;
       }
    }
-   return res;
+   return fin;
 }

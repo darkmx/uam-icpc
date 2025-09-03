@@ -10,8 +10,8 @@
  *  std::cout << *s.find_by_order(1) << "\n";  // iterador al nodo dado el índice
  */
 #include <functional>
-#include <ext/pb_ds/assoc_container.hpp>  /// include-line
-#include <ext/pb_ds/tree_policy.hpp>      /// include-line
+#include <ext/pb_ds/assoc_container.hpp>  /// keep-include
+#include <ext/pb_ds/tree_policy.hpp>      /// keep-include
 
 namespace gnu = __gnu_pbds;
 
@@ -20,3 +20,5 @@ using statistics_set = gnu::tree<T, gnu::null_type, std::less<T>, gnu::rb_tree_t
 
 template<typename T, typename V>
 using statistics_map = gnu::tree<T, V, std::less<T>, gnu::rb_tree_tag, gnu::tree_order_statistics_node_update>;
+
+// para multiset y multimap, hay un "hack" que usa std::less_equal, pero .lower_bound ya no funciona, aunque .upper_bound sí

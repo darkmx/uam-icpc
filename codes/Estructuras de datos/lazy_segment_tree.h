@@ -18,11 +18,7 @@
  *  int suma2 = s.query(5, 10);
  */
 #include <algorithm>
-#include <climits>
 #include <functional>
-#include <iostream>
-#include <limits>
-#include <optional>
 #include <utility>
 #include <vector>
 
@@ -31,8 +27,9 @@ class lazy_segment_tree {
 public:
    lazy_segment_tree(std::vector<T>&& init, T v0, U u0, FQ fq, FU fu, FP fp)
    : mem(init.size( ) * 2), neutro(std::move(v0)), neutro_update(std::move(u0)), funcion(std::move(fq)), funcion_update(std::move(fu)), funcion_propagar(std::move(fp)) {
-      auto p = init.data( );
-      construye(0, 0, size( ), p);
+      if (auto p = init.data( ); !init.empty( )) {
+         construye(0, 0, size( ), p);
+      }
    }
 
    int size( ) const {
@@ -77,7 +74,7 @@ private:
 
    template<typename V>
    void visit(int i, int qi, int qf, int ini, int fin, V&& vis) const {
-      if (qi == ini && qf == fin) {
+      if (qi == ini && qf == fin && ini != fin) {
          vis(mem[i], fin - ini);
       } else if (qi < qf) {
          int tam = fin - ini, mitad = ini + tam / 2, izq = i + 1, der = i + 2 * (tam / 2);

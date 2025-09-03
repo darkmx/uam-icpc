@@ -89,7 +89,7 @@ private:
 
    template<typename V>
    void visit(const nodo* p, int qi, int qf, int ini, int fin, V& vis) const {
-      if (qi == ini && qf == fin) {
+      if (qi == ini && qf == fin && ini != fin) {
          vis(p->valor);
       } else if (qi < qf) {
          int mitad = ini + (fin - ini) / 2;

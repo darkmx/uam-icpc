@@ -19,9 +19,9 @@ struct criba {
       for (int i = 2; i <= tope; i++) {
          if (es_primo[i]) {
             menor_factor[i] = i;
-            for (int j = i * i; j <= tope; j += i) {
+            for (auto j = (std::size_t)i * i; j <= tope; j += i) {
                es_primo[j] = false;
-               if (menor_factor == 0) {
+               if (menor_factor[j] == 0) {
                   menor_factor[j] = i;
                }
             }

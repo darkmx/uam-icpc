@@ -2,7 +2,7 @@ template<int MOD>
 int logaritmo_discreto(modular_int<MOD> a, modular_int<MOD> b) {
    int n = std::sqrt(MOD) + 1;
    std::map<int, int> mapa;
-   for (int p = 1; p <= n; ++p) {
+   for (int p = 0; p <= n; ++p) {
       mapa[potencia(a, p * n)] = p;
    }
    for (int q = 0; q <= n; ++q) {

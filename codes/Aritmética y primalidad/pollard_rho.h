@@ -29,7 +29,7 @@ int64_t factor_pollard_rho(int64_t n, int64_t c) {
 
 std::vector<int64_t> factoriza(int64_t n) { // suposición: n >= 2
    std::vector<int64_t> factores;
-   if (primalidad_miller_rabin(n)) {
+   if (es_primo(n)) {
       factores.push_back(n);
    } else {
       for (int64_t i = 2; ; i++) {

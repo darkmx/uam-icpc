@@ -57,13 +57,17 @@ public:
 
    template<typename V>
    void visit(int ini, int fin, V&& vis) const {   // callback sobre los nodos más representativos dentro de un rango específico
+      const T* derecha[64], **w = &derecha[0];
       for (int p = 0; ini != fin; ++p, ini /= 2, fin /= 2) {
          if (ini % 2 == 1) {
             vis(pisos[p][ini++]);
          }
          if (fin % 2 == 1) {
-            vis(pisos[p][--fin]);
+            *w++ = &pisos[p][--fin];
          }
+      }
+      while (w != &derecha[0]) {
+         vis(**--w);
       }
    }
 

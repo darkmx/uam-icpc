@@ -12,7 +12,7 @@
 #include <numeric>
 
 template<typename T, typename F>
-T busqueda_ternaria(T ini, T fin, F funcion, T tol = 1) {      // busca el máximo de la función
+T busqueda_ternaria(T ini, T fin, F funcion, T tol = 1) {
    while (fin - ini >= 3 * tol) {
       T mitad1 = ini + 1 * (fin - ini) / 3;
       T mitad2 = ini + 2 * (fin - ini) / 3;

@@ -5,7 +5,7 @@
  * Complejidad: $O(n)$ para el preprocesamiento y $O(\log n)$ para las queries.
  * Uso:
  *  lca_tree lca(tree_stats(raiz, adyacencia));       // usa segment_tree
- *  lca_tree_lazy lca(tree_stats(raiz, adyacencia));  // usa lazy_segment_tree
+ *  lca_lazy_tree lca(tree_stats(raiz, adyacencia));  // usa lazy_segment_tree
  *  int ancestro = lca.query(i, j);
  */
 #include "segment_tree.h"        /// keep-include
@@ -27,20 +27,19 @@ private:
       int altura = 0, peso = 0;
       contorno.push_back(actual);
       for (auto v : adj[actual]) {
-         if (v == anterior) {
-            continue;
+         if (v != anterior) {
+            calcula(v, actual, adj);
+            altura = max(altura, alturas[v]), peso += pesos[v];
+            contorno.push_back(actual);
          }
-         calcula(v, actual, adj);
-         altura = max(altura, alturas[v]), peso += pesos[v];
-         contorno.push_back(actual);
       }
       alturas[actual] = altura + 1, pesos[actual] = peso + 1;
    }
 };
 
 template<typename T>
-struct lca_tree_base {
-   lca_tree_base(tree_stats&& s)
+struct lca_base {
+   lca_base(tree_stats&& s)
    : primera(s.alturas.size( )) {
       for (int i = s.contorno.size( ) - 1; i >= 0; --i) {
          primera[s.contorno[i]] = i;
@@ -67,15 +66,15 @@ protected:
    vector<int> primera;
 };
 
-struct lca_tree : lca_tree_base<lca_tree> {        // usa segment_tree; útil en general
+struct lca_tree : lca_base<lca_tree> {        // usa segment_tree; útil en general
    lca_tree(tree_stats&& s)
-   : lca_tree_base<lca_tree>(move(s)), st(move(s.contorno), primera.size( ), op(move(s.alturas))) {
+   : lca_base<lca_tree>(move(s)), st(move(s.contorno), primera.size( ), op(move(s.alturas))) {
    }
 
    decltype(segment_tree(vector<int>( ), int( ), declval<op>( ))) st;
 };
 
-struct lca_tree_lazy : lca_tree_base<lca_tree> {   // usa lazy_segment_tree; útil si se usará hdl con lazy_segment_tree (para compartir implementación)
+struct lca_lazy_tree : lca_base<lca_tree> {   // usa lazy_segment_tree; útil si se usará hdl con lazy (para compartir implementación)
    struct dummy {
       auto operator<=>(const dummy&) const = default;
 
@@ -87,8 +86,8 @@ struct lca_tree_lazy : lca_tree_base<lca_tree> {   // usa lazy_segment_tree; út
       }
    };
 
-   lca_tree_lazy(tree_stats&& s)
-   : lca_tree_base<lca_tree>(move(s)), st(move(s.contorno), primera.size( ), dummy( ), op(move(s.alturas)), dummy( ), dummy( )) {
+   lca_lazy_tree(tree_stats&& s)
+   : lca_base<lca_tree>(move(s)), st(move(s.contorno), primera.size( ), dummy( ), op(move(s.alturas)), dummy( ), dummy( )) {
    }
 
    decltype(lazy_segment_tree(vector<int>( ), int( ), dummy( ), declval<op>( ), dummy( ), dummy( ))) st;

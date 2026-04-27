@@ -4,8 +4,8 @@
  * Descripción: Calcula el ancestro común de dos vértices a partir de haber precalculado un preorden aumentado o contorno.
  * Complejidad: $O(n)$ para el preprocesamiento y $O(\log n)$ para las queries.
  * Uso:
- *  lca_tree lca(tree_stats(raiz, adyacencia));       // usa segment_tree
- *  lca_lazy_tree lca(tree_stats(raiz, adyacencia));  // usa lazy_segment_tree
+ *  lca_tree lca(tree_stats(raiz, adyacencia));      // usa segment\_tree
+ *  lca_lazy_tree lca(tree_stats(raiz, adyacencia)); // usa lazy\_segment\_tree
  *  int ancestro = lca.query(i, j);
  */
 #include "segment_tree.h"        /// keep-include

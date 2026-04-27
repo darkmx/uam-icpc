@@ -8,8 +8,8 @@
  *  lca_lazy_tree lca(tree_stats(raiz, adyacencia)); // usa lazy\_segment\_tree
  *  int ancestro = lca.query(i, j);
  */
-#include "segment_tree.h"        /// keep-include
-#include "lazy_segment_tree.h"   /// keep-include
+#include "segment_tree.h"
+#include "lazy_segment_tree.h"
 #include <algorithm>
 #include <type_traits>
 #include <vector>

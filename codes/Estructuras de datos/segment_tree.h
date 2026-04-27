@@ -5,7 +5,7 @@
  *              de elementos y calcular el producto de los elementos en un intervalo.
  * Complejidad: $O(\log n)$, se asume que $f$ es de tiempo constante.
  * Uso:
- *  auto s = segment_tree(std::move(vector_inicial), 0, std::plus( ));
+ *  auto s = segment_tree(move(vector_inicial), 0, plus( ));
  *  int suma1 = s.query(5, 10);
  *  s.replace(i, rand( ));
  *  int suma2 = s.query(5, 10);
@@ -18,9 +18,9 @@
 template<typename T, typename F = const T&(*)(const T&, const T&)>
 class segment_tree {
 public:
-   segment_tree(std::vector<T>&& init, T v0, F f)
-   : neutro(std::move(v0)), funcion(std::move(f)) {
-      pisos.push_back(std::move(init));
+   segment_tree(vector<T>&& init, T v0, F f)
+   : neutro(move(v0)), funcion(move(f)) {
+      pisos.push_back(move(init));
       while (pisos.back( ).size( ) > 1) {
          pisos.emplace_back(pisos.back( ).size( ) / 2);
          for (int i = 0, t = pisos.size( ) - 2; i < pisos[t].size( ) / 2; ++i) {
@@ -39,7 +39,7 @@ public:
 
    void replace(int i, T v) {
       for (int p = 0;; ++p, i /= 2) {
-         pisos[p][i] = std::move(v);
+         pisos[p][i] = move(v);
          if (i + (i % 2 == 0) == pisos[p].size( )) {
             break;
          }
@@ -72,13 +72,13 @@ public:
    }
 
 private:
-   std::vector<std::vector<T>> pisos;
+   vector<vector<T>> pisos;
    T neutro;
    F funcion;
 };
 
 // < C++17
 /*template<typename T, typename F = const T&(*)(const T&, const T&)>
-auto make_segment_tree(std::vector<T> inicial, T v0, F f) {
-   return segment_tree<T, F>(std::move(inicial), std::move(v0), std::move(f));
+auto make_segment_tree(vector<T> inicial, T v0, F f) {
+   return segment_tree<T, F>(move(inicial), move(v0), move(f));
 }*/

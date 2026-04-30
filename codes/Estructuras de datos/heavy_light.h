@@ -5,10 +5,10 @@
  * Complejidad: $O(n \log n)$ para procesar, $O(\log^2 n)$ por query
  * Estado: probado en https://cses.fi/problemset/task/2134 y https://codeforces.com/gym/106063/problem/L
  * Uso:
- *  auto hv = hld_vertex(std::move(vector_inicial), std::move(vector_costos), assoc_op o lazy_assoc_op);
+ *  auto hv = make_hld_vertex(std::move(vector_inicial), std::move(vector_costos), assoc_op o lazy_assoc_op);
  *  hv.replace(i, 7);
  *  int r1 = hv.query(i, j);
- *  auto he = hld_edge(std::move(vector_inicial), std::move(mapa_costos), assoc_op o lazy_assoc_op);
+ *  auto he = make_hld_edge(std::move(vector_inicial), std::move(mapa_costos), assoc_op o lazy_assoc_op);
  *  he.update_with(i, j, 7);     // requiere lazy
  *  int r2 = he.query(i, j);
  */
@@ -22,9 +22,9 @@ struct hld_base {
 
    hld_base(std::vector<std::vector<int>> a, OP&& p, F&& f, std::bool_constant<VMODE>)
    : adj(std::move(a)), op(std::move(p)), funcion_costos(std::move(f)), invertido(adj.size( )) {
-      tree_stats stats(0, adj);;
-      alturas = std::move(stats.alturas);
+      tree_stats stats(0, adj);
       grupos.reserve(adj.size( ));
+      alturas = std::move(stats.alturas);
       descomposicion(0, -1, stats.pesos, grupos[0]);
       for (int i = 0; i < grupos.size( ); ++i) {
          std::vector<T> costos_local;

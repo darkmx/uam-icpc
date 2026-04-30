@@ -4,10 +4,11 @@
  * Descripción: Estructura de datos para monóides $(T, \cdot : T \times T \rightarrow T, n \in T)$, permite realizar actualizaciones
  *              de elementos y calcular el producto de los elementos en un intervalo.
  * Complejidad: $O(\log n)$, se asume que $f$ es de tiempo constante.
+ * Estado: probado en https://cses.fi/problemset/task/2134
  * Uso:
- *  auto s = segment_tree(move(vector_inicial), 0, plus( ));
+ *  auto s = segment_tree(std::move(vector_inicial), assoc_op(0, std::plus( )));
  *  int suma1 = s.query(5, 10);
- *  s.replace(i, rand( ));
+ *  s.replace(2, rand( ));
  *  int suma2 = s.query(5, 10);
  */
 #include <algorithm>
@@ -16,15 +17,21 @@
 #include <vector>
 
 template<typename T, typename F = const T&(*)(const T&, const T&)>
-class segment_tree {
-public:
-   segment_tree(vector<T>&& init, T v0, F f)
-   : neutro(move(v0)), funcion(move(f)) {
-      pisos.push_back(move(init));
-      while (pisos.back( ).size( ) > 1) {
+struct assoc_op {
+   T neutro;
+   F funcion;
+};
+
+template<typename OP>
+struct segment_tree {
+   using T = decltype(OP::neutro);
+
+   segment_tree(std::vector<T>&& v, OP p)
+   : op(std::move(p)) {
+      for (pisos.push_back(std::move(v)); pisos.back( ).size( ) > 1; ) {
          pisos.emplace_back(pisos.back( ).size( ) / 2);
-         for (int i = 0, t = pisos.size( ) - 2; i < pisos[t].size( ) / 2; ++i) {
-            pisos.back( )[i] = funcion(pisos[t][2 * i], pisos[t][2 * i + 1]);
+         for (int i = 0, k = pisos.size( ) - 2; i < pisos[k].size( ) / 2; ++i) {
+            pisos.back( )[i] = op.funcion(pisos[k][2 * i], pisos[k][2 * i + 1]);
          }
       }
    }
@@ -38,25 +45,22 @@ public:
    }
 
    void replace(int i, T v) {
-      for (int p = 0;; ++p, i /= 2) {
-         pisos[p][i] = move(v);
-         if (i + (i % 2 == 0) == pisos[p].size( )) {
-            break;
-         }
-         v = funcion(pisos[p][i - i % 2], pisos[p][i - i % 2 + 1]);
+      pisos[0][i] = std::move(v);
+      for (int p = 0; i - i % 2 + 1 != pisos[p].size( ); ++p, i /= 2) {
+         pisos[p + 1][i / 2] = op.funcion(pisos[p][i - i % 2], pisos[p][i - i % 2 + 1]);
       }
    }
 
    T query(int ini, int fin) const {
-      T res = neutro;
+      T res = op.neutro;
       visit(ini, fin, [&](const T& valor) {
-         res = funcion(res, valor);
+         res = op.funcion(res, valor);
       });
       return res;
    }
 
    template<typename V>
-   void visit(int ini, int fin, V&& vis) const {   // callback sobre los nodos más representativos dentro de un rango específico
+   void visit(int ini, int fin, V&& vis) const {
       const T* derecha[64], **w = &derecha[0];
       for (int p = 0; ini != fin; ++p, ini /= 2, fin /= 2) {
          if (ini % 2 == 1) {
@@ -72,13 +76,11 @@ public:
    }
 
 private:
-   vector<vector<T>> pisos;
-   T neutro;
-   F funcion;
+   std::vector<std::vector<T>> pisos;
+   OP op;
 };
 
-// < C++17
-/*template<typename T, typename F = const T&(*)(const T&, const T&)>
-auto make_segment_tree(vector<T> inicial, T v0, F f) {
-   return segment_tree<T, F>(move(inicial), move(v0), move(f));
-}*/
+template<typename T, typename... P>    // función sólo necesaria para hld
+auto make_segment_tree(std::vector<T>&& v, assoc_op<P...> a) {
+   return segment_tree(std::move(v), a);
+}

@@ -4,18 +4,22 @@
  * Descripción: Árbol de segmentos con capacidad para modificar valores de
  *              intervalos grandes y calcular consultas de intervalos.
  * Complejidad: $O(\log n)$
+ * Estado: probado en https://codeforces.com/gym/106063/problem/L
  * Uso:
- *  auto s = lazy_segment_tree(std::move(vector_inicial), 0, 0, std::plus( ),
- *   [](int& valor, int cubiertos, int cambio) {
- *      valor += cambio * cubiertos;
- *      return true;
- *   },
- *   [](int cambio1, int cambio2) {
- *      return cambio1 + cambio2;
- *   });
- *  int suma1 = s.query(5, 10);
- *  s.arbol.update_with(2, 8, +1);
- *  int suma2 = s.query(5, 10);
+ * auto s = lazy_segment_tree(std::move(vector_inicial), lazy_assoc_op(
+ *  0,
+ *  0,
+ *  std::plus( ),
+ *  [](int& valor, int cubiertos, int cambio) {
+ *     valor += cambio * cubiertos;
+ *     return true;
+ *  },
+ *  [](int cambio1, int cambio2) {
+ *     return cambio1 + cambio2;
+ *  }));
+ * int suma1 = s.query(5, 10);
+ * s.update_with(2, 8, +1);
+ * int suma2 = s.query(5, 10);
  */
 #include <algorithm>
 #include <functional>
@@ -23,10 +27,21 @@
 #include <vector>
 
 template<typename T, typename U, typename FQ = const T&(*)(const T&, const T&), typename FU = bool(*)(T&, int, const U&), typename FP = const U&(*)(const U&, const U&)>
-class lazy_segment_tree {
-public:
-   lazy_segment_tree(std::vector<T>&& init, T v0, U u0, FQ fq, FU fu, FP fp)
-   : mem(init.size( ) * 2), neutro(std::move(v0)), neutro_update(std::move(u0)), funcion(std::move(fq)), funcion_update(std::move(fu)), funcion_propagar(std::move(fp)) {
+struct lazy_assoc_op {
+   T neutro;
+   U neutro_update;
+   FQ funcion;
+   FU funcion_update;
+   FP funcion_propagar;
+};
+
+template<typename OP>
+struct lazy_segment_tree {
+   using T = decltype(OP::neutro);
+   using U = decltype(OP::neutro_update);
+
+   lazy_segment_tree(std::vector<T>&& init, OP p)
+   : op(std::move(p)), mem(init.size( ) * 2) {
       if (auto p = init.data( ); !init.empty( )) {
          construye(0, 0, size( ), p);
       }
@@ -41,16 +56,16 @@ public:
    }
 
    T query(int ini, int fin) const {
-      T res = neutro;
+      T res = op.neutro;
       visit(0, ini, fin, 0, size( ), [&](const std::pair<T, U>& actual, int cubiertos) {
-         res = funcion(res, actual.first);
+         res = op.funcion(res, actual.first);
       });
       return res;
    }
 
-   void update_with(int ini, int fin, const U& v) {
+   void update_with(int ini, int fin, const U& u) {
       visit(0, ini, fin, 0, size( ), [&](std::pair<T, U>& actual, int cubiertos) {
-         actualiza(actual, cubiertos, v);
+         actualiza(actual, cubiertos, u);
       });
    }
 
@@ -64,11 +79,11 @@ public:
 private:
    const std::pair<T, U>& construye(int i, int ini, int fin, T*& p) {
       if (fin - ini == 1) {
-         return mem[i] = { std::move(*p++), neutro_update };
+         return mem[i] = { std::move(*p++), op.neutro_update };
       } else {
          int tam = fin - ini, mitad = ini + tam / 2, izq = i + 1, der = i + 2 * (tam / 2);
          auto t1 = construye(izq, ini, mitad, p).first, t2 = construye(der, mitad, fin, p).first;
-         return mem[i] = { funcion(t1, t2), neutro_update };
+         return mem[i] = { op.funcion(t1, t2), op.neutro_update };
       }
    }
 
@@ -82,22 +97,21 @@ private:
          actualiza(mem[der], tam - tam / 2, mem[i].second);
          visit(izq, qi, std::min(qf, mitad), ini, mitad, vis);
          visit(der, std::max(qi, mitad), qf, mitad, fin, vis);
-         mem[i] = { funcion(mem[izq].first, mem[der].first), neutro_update };
+         mem[i] = { op.funcion(mem[izq].first, mem[der].first), op.neutro_update };
       }
    }
 
    void actualiza(std::pair<T, U>& actual, int cubiertos, const U& cambio) const {
-      if (cambio != neutro_update && funcion_update(actual.first, cubiertos, cambio)) {
-         actual.second = (actual.second != neutro_update ? funcion_propagar(actual.second, cambio) : cambio);
+      if (cambio != op.neutro_update && op.funcion_update(actual.first, cubiertos, cambio)) {
+         actual.second = (actual.second != op.neutro_update ? op.funcion_propagar(actual.second, cambio) : cambio);
       }
    }
 
+   OP op;
    mutable std::vector<std::pair<T, U>> mem;
-   T neutro;
-   U neutro_update;
-   FQ funcion;
-   FU funcion_update;
-   FP funcion_propagar;
 };
 
-// < C++17 checar segment_tree
+template<typename T, typename... P>    // función sólo necesaria para hld
+auto make_segment_tree(std::vector<T>&& v, lazy_assoc_op<P...> a) {
+   return lazy_segment_tree(std::move(v), a);
+}

@@ -36,7 +36,7 @@ struct hld_base {
       }
    }
 
-   int lowest_common_ancestor(int i, int j) const {
+   int lowest_common_ancestor(int i, int j) const {      // con hld se puede implementar el lca de otra forma
       while (invertido[i].first != invertido[j].first) {
          int ri = grupos[invertido[i].first][0], rj = grupos[invertido[j].first][0];
          (std::pair(alturas[ri], alturas[i]) < std::pair(alturas[rj], alturas[j]) ? i = ri : j = rj);

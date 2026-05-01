@@ -104,7 +104,7 @@ protected:
 
 template<typename OP, typename T>
 auto make_hld_vertex(std::vector<std::vector<int>>&& adj, std::vector<T>&& costos, OP&& op) {
-   return hld_base(std::move(adj), std::move(op), [c = move(costos)](int i, int j) {
+   return hld_base(std::move(adj), std::move(op), [c = std::move(costos)](int i, int j) {
       return c[j];
    }, std::bool_constant<true>( ));
 }

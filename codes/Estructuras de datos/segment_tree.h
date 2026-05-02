@@ -24,6 +24,7 @@ struct assoc_op {
 
 template<typename OP>
 struct segment_tree {
+   const OP op;
    using T = decltype(OP::neutro);
 
    segment_tree(std::vector<T>&& v, OP p)
@@ -77,7 +78,6 @@ struct segment_tree {
 
 private:
    std::vector<std::vector<T>> pisos;
-   OP op;
 };
 
 template<typename T, typename... P>    // función sólo necesaria para hld

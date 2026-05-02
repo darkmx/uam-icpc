@@ -37,6 +37,7 @@ struct lazy_assoc_op {
 
 template<typename OP>
 struct lazy_segment_tree {
+   const OP op;
    using T = decltype(OP::neutro);
    using U = decltype(OP::neutro_update);
 
@@ -107,7 +108,6 @@ private:
       }
    }
 
-   OP op;
    mutable std::vector<std::pair<T, U>> mem;
 };
 

@@ -59,14 +59,14 @@ struct hld_base {
 
    T path_query(int i, int j) const {
       T res = st->op.neutro;
-      path_visit(i, j, [&](int ini, int fin) {
+      path_visit(i, j, [&](int v, int ini, int fin) {
          res = st->op.funcion(res, st->query(ini, fin));
       });
       return res;
    }
 
    void path_update_with(int i, int j, auto u) {   // sólo si se usa lazy_segment_tree
-      path_visit(i, j, [&](int ini, int fin) {
+      path_visit(i, j, [&](int v, int ini, int fin) {
          st->update_with(ini, fin, u);
       });
    }
@@ -74,13 +74,13 @@ struct hld_base {
    template<typename V>
    void path_visit(int i, int j, V&& vis) const {
       int lca = lowest_common_ancestor(i, j);
-      vis(invertido[lca].second, invertido[lca].second + VMODE);
+      vis(lca, invertido[lca].second, invertido[lca].second + VMODE);
       for (int hijo : { i, j }) {
-         do {
-            auto [subir, pos_tope] = (invertido[hijo].first == invertido[lca].first ? std::pair(-1, invertido[lca].second + VMODE) : grupos[invertido[hijo].first]);
-            vis(pos_tope, invertido[hijo].second + VMODE);
+         while (hijo != lca) {
+            auto [subir, pos_tope] = (invertido[hijo].first == invertido[lca].first ? std::pair(lca, invertido[lca].second + VMODE) : grupos[invertido[hijo].first]);
+            vis(hijo, pos_tope, invertido[hijo].second + VMODE);
             hijo = subir;
-         } while (hijo != -1);
+         }
       }
    }
 

@@ -31,6 +31,10 @@ struct hld_base {
       st.emplace(std::move(costos), std::move(op));
    }
 
+   auto& segment_tree( ) const {                // sólo se se usará visit explicitamente
+      return *st;
+   }
+
    int lowest_common_ancestor(int i, int j) const {   // con hld se puede implementar el lca de otra forma
       while (invertido[i].first != invertido[j].first) {
          int ri = grupos[invertido[i].first].first, rj = grupos[invertido[j].first].first;

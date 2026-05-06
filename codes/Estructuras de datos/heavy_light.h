@@ -3,7 +3,7 @@
  * Autor: rcc
  * Descripción: Descomposición de un árbol con ejemplo de queries en el camino entre dos vértices
  * Complejidad: $O(n \log n)$ para procesar, $O(\log^2 n)$ por query
- * Estado: probado en https://cses.fi/problemset/task/1137, https://cses.fi/problemset/task/2134 y https://codeforces.com/gym/106063/problem/L
+ * Estado: probado en https://cses.fi/problemset/task/1137, https://cses.fi/problemset/task/2134, https://codeforces.com/gym/106063/problem/L y https://codeforces.com/contest/1017/problem/G
  * Uso:
  *  auto hv = make_hld_vertex(raiz, std::move(adyacencia), std::move(vector_costos), assoc_op o lazy_assoc_op);
  *  hv.replace(i, 7);

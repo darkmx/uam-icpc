@@ -20,9 +20,9 @@
  * int suma1 = s.query(5, 10);
  * s.update_with(2, 8, +1);
  * int suma2 = s.query(5, 10);
- * s.amortized_override_with(0, 5, [](int& valor, int cubiertos) {
- *    // cubiertos == 1, aplicar el cambio deseado y devolver cualquier booleano
- *    // cubiertos > 1, sólo devolver un booleano que indique si quieres seguir descendiendo
+ * s.override_with(0, 5, [](std::pair<int, int>& nodo, int cubiertos) {
+ *    // cubiertos == 1, aplicar la modificación deseada y devolver cualquier booleano
+ *    // cubiertos > 1, devolver un booleano que indique si quieres seguir descendiendo
  * });
  */
 #include <algorithm>
@@ -77,9 +77,9 @@ struct lazy_segment_tree {
    }
 
    template<typename O>
-   void amortized_override_with(int ini, int fin, const O& ov) {
+   void override_with(int ini, int fin, const O& ov) {
       visit(0, ini, fin, 0, size( ), [&](std::pair<T, U>& actual, int cubiertos) {
-         return ov(actual.first, cubiertos);
+         return ov(actual, cubiertos);
       });
    }
 

@@ -4,32 +4,38 @@
  * Descripción: Árbol de segmentos que permite consultar cualquier versión
  *              anterior del árbol después de cada modificación.
  * Complejidad: $O(\log n)$
+ * Estado: probado en https://www.spoj.com/problems/MKTHNUM/
  * Uso:
- *  auto s = persistent_segment_tree(std::move(vector_inicial), 0, std::plus( ));
+ *  auto s = persistent_segment_tree(std::move(vector_inicial), assoc_op(0, std::plus( )));
  *  int suma1 = s.query(5, 10);
  *  auto s2 = s.replace(i, rand( ));
  *  int suma2 = s.query(5, 10);
  */
+#include "segment_tree.h"
 #include <algorithm>
 #include <deque>
 #include <functional>
 #include <numeric>
 #include <memory>
 #include <utility>
+#include <vector>
 
-template<typename T, typename F = const T&(*)(const T&, const T&)>
+template<typename OP>
 class persistent_segment_tree {
 public:
+   const OP op;
+   using T = decltype(OP::neutro);
+
    struct nodo {
       T valor;
       nodo *izq, *der;
    };
 
-   persistent_segment_tree(std::vector<T>&& init, T v0, F f)
-   : mem(std::make_shared<std::deque<nodo>>( )), neutro(std::move(v0)), funcion(std::move(f)), tam(init.size( )) {
-      auto p = init.data( );
+   persistent_segment_tree(std::vector<T>&& v, OP p)
+   : mem(std::make_shared<std::deque<nodo>>( )), op(std::move(p)), tam(v.size( )) {
+      auto ini = v.data( );
       raiz = replace(nullptr, 0, size( ), 0, size( ), [&]{
-         return std::move(*p++);
+         return std::move(*ini++);
       });
    }
 
@@ -50,15 +56,15 @@ public:
    }
 
    T query(int ini, int fin) const {
-      T res = neutro;
+      T res = op.neutro;
       visit(ini, fin, [&](const T& valor) {
-         res = funcion(res, valor);
+         res = op.funcion(res, valor);
       });
       return res;
    }
 
    persistent_segment_tree replace(int i, T v) {
-      return { mem, neutro, funcion, size( ), replace(raiz, i, i + 1, 0, size( ), [&]{
+      return { mem, op, size( ), replace(raiz, i, i + 1, 0, size( ), [&]{
          return std::move(v);
       }) };
    }
@@ -69,8 +75,8 @@ public:
    }
 
 private:
-   persistent_segment_tree(std::shared_ptr<std::deque<nodo>>& m, T v0, F f, int t, nodo* r)
-   : mem(m), neutro(std::move(v0)), funcion(std::move(f)), tam(t), raiz(r) {
+   persistent_segment_tree(std::shared_ptr<std::deque<nodo>>& m, OP p, int t, nodo* r)
+   : mem(m), op(std::move(p)), tam(t), raiz(r) {
    }
 
    template<typename I>
@@ -83,7 +89,7 @@ private:
          int mitad = ini + (fin - ini) / 2;
          auto izq = replace((p == nullptr ? nullptr : p->izq), qi, std::min(qf, mitad), ini, mitad, entrada);
          auto der = replace((p == nullptr ? nullptr : p->der), std::max(qi, mitad), qf, mitad, fin, entrada);
-         return crea(funcion(izq->valor, der->valor), izq, der);
+         return crea(op.funcion(izq->valor, der->valor), izq, der);
       }
    }
 
@@ -104,8 +110,6 @@ private:
    }
 
    std::shared_ptr<std::deque<nodo>> mem;
-   T neutro;
-   F funcion;
    int tam;
    nodo* raiz;
 };

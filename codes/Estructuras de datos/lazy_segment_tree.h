@@ -4,7 +4,7 @@
  * Descripción: Árbol de segmentos con capacidad para modificar valores de
  *              intervalos grandes y calcular consultas de intervalos.
  * Complejidad: $O(\log n)$
- * Estado: probado en https://codeforces.com/gym/106063/problem/L
+ * Estado: probado en https://codeforces.com/gym/106063/problem/L y https://codeforces.com/contest/438/problem/D
  * Uso:
  * auto s = lazy_segment_tree(std::move(vector_inicial), lazy_assoc_op(
  *  0,
@@ -20,6 +20,10 @@
  * int suma1 = s.query(5, 10);
  * s.update_with(2, 8, +1);
  * int suma2 = s.query(5, 10);
+ * s.amortized_override_with(0, 5, [](int& valor, int cubiertos) {
+ *    // cubiertos == 1, aplicar el cambio deseado y devolver cualquier booleano
+ *    // cubiertos > 1, sólo devolver un booleano que indique si quieres seguir descendiendo
+ * });
  */
 #include <algorithm>
 #include <functional>
@@ -60,6 +64,7 @@ struct lazy_segment_tree {
       T res = op.neutro;
       visit(0, ini, fin, 0, size( ), [&](const std::pair<T, U>& actual, int cubiertos) {
          res = op.funcion(res, actual.first);
+         return false;
       });
       return res;
    }
@@ -67,6 +72,14 @@ struct lazy_segment_tree {
    void update_with(int ini, int fin, const U& u) {
       visit(0, ini, fin, 0, size( ), [&](std::pair<T, U>& actual, int cubiertos) {
          actualiza(actual, cubiertos, u);
+         return false;
+      });
+   }
+
+   template<typename O>
+   void amortized_override_with(int ini, int fin, const O& ov) {
+      visit(0, ini, fin, 0, size( ), [&](std::pair<T, U>& actual, int cubiertos) {
+         return ov(actual.first, cubiertos);
       });
    }
 
@@ -74,6 +87,7 @@ struct lazy_segment_tree {
    void visit(int ini, int fin, V&& vis) const {
       visit(0, ini, fin, 0, size( ), [&](const std::pair<T, U>& actual, int cubiertos) {
          vis(actual.first, cubiertos);
+         return false;
       });
    }
 
@@ -90,9 +104,7 @@ private:
 
    template<typename V>
    void visit(int i, int qi, int qf, int ini, int fin, V&& vis) const {
-      if (qi == ini && qf == fin && ini != fin) {
-         vis(mem[i], fin - ini);
-      } else if (qi < qf) {
+      if (qi < qf && (qi != ini || qf != fin || vis(mem[i], fin - ini) && fin - ini > 1)) {
          int tam = fin - ini, mitad = ini + tam / 2, izq = i + 1, der = i + 2 * (tam / 2);
          actualiza(mem[izq], tam / 2, mem[i].second);
          actualiza(mem[der], tam - tam / 2, mem[i].second);

@@ -1,7 +1,7 @@
 /**
  * Nombre: Árbol de segmentos
  * Autor: rcc
- * Descripción: Estructura de datos para monóides $(T, \cdot : T \times T \rightarrow T, n \in T)$, permite realizar actualizaciones
+ * Descripción: Estructura de datos para monoides $(T, \cdot : T \times T \rightarrow T, n \in T)$, permite realizar actualizaciones
  *              de elementos y calcular el producto de los elementos en un intervalo.
  * Complejidad: $O(\log n)$, se asume que $f$ es de tiempo constante.
  * Estado: probado en https://cses.fi/problemset/task/2134

@@ -87,7 +87,9 @@ private:
          cuello = std::min(cuello, cap[anterior[i]][i]);
       }
       for (int i = 0; i < adj.size( ); ++i) {
-         min[i] += potencial[i] - potencial[fuente];
+         if (min[i] != std::numeric_limits<D>::max( )) {
+            min[i] += potencial[i] - potencial[fuente];
+         }
       }
       std::swap(potencial, min);
       return { cuello, camino };

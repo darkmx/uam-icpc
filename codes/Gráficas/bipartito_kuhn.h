@@ -7,7 +7,7 @@
  * Uso:
  *   bipartito_kuhn bp(|A|, |B|);
  *   bp.agrega_arco(i, j); // por cada arista ($i \in A$, $j \in B$)
- *   int tam = bp.acoplamiento_maximo();
+ *   int tam = bp.acoplamiento_maximo( );
  *   if (int i = bp.match_b[j]; i != -1) {
  *      // i está emparejado con j
  *   }
